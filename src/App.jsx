@@ -7,9 +7,8 @@ const App = () => {
   const [tool, setTool] = useState("rectTool");
   let rectangles = useRef([]);
   let brushes = useRef([]);
-
+  let circles = useRef([]);
   let isDraw = false;
-
   let currentTool;
 
   useEffect(() => {
@@ -20,16 +19,13 @@ const App = () => {
       p.setup = () => {
         const canvas = p.createCanvas(400, 400);
         canvas.parent(canvasContainer);
-        p.background("pink");
-        currentTool = switchTool(tool, isDraw, brushes, rectangles);
+        currentTool = switchTool(tool, isDraw, brushes, rectangles, circles);
         currentTool.setup(p);
       };
 
       //draw loop
       p.draw = () => {
         console.log("brushes", brushes);
-
-        p.clear();
         p.background("pink");
         currentTool.draw();
         for (const brush of brushes.current) {
@@ -85,6 +81,15 @@ const App = () => {
         }}
       >
         rectangle tool
+      </button>
+
+      <button
+        onClick={() => {
+          setTool("circleTool");
+          console.log(tool);
+        }}
+      >
+        circle tool
       </button>
       <h1>Rectangle Drawing Tool</h1>
       <div id="canvas-container"></div>
