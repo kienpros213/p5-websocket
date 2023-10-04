@@ -25,7 +25,7 @@ const App = () => {
 
       //draw loop
       p.draw = () => {
-        console.log("brushes", brushes);
+        console.log("circles", circles);
         p.background("pink");
         currentTool.draw();
         for (const brush of brushes.current) {
@@ -43,6 +43,12 @@ const App = () => {
             rectangle.width,
             rectangle.height
           );
+        }
+
+        for (const circle of circles.current) {
+          p.fill(0, 0, 255, 100);
+          p.noStroke();
+          p.circle(circle.startX, circle.startY, circle.radius);
         }
       };
 
