@@ -1,10 +1,11 @@
 class CircleTool {
-  constructor(circles, isDraw) {
+  constructor(circles, isDraw, socket) {
     this.isDraw = isDraw;
     this.startX = 0;
     this.startY = 0;
     this.radius;
     this.circles = circles;
+    this.socket = socket;
   }
 
   setup(p) {

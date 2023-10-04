@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import p5 from "p5";
 import { switchTool } from "./utils/toolFactory";
+import { io } from "socket.io-client";
 
 const App = () => {
   let sketch = null;
-  const [tool, setTool] = useState("rectTool");
+  const [tool, setTool] = useState("brushTool");
+  const [socket, setSocket] = useState();
+  // const socket = useRef(null);
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
@@ -12,20 +15,29 @@ const App = () => {
   let currentTool;
 
   useEffect(() => {
-    const canvasContainer = document.getElementById("canvas-container");
+    const initSocket = io("ws://localhost:3000");
+    setSocket(initSocket);
+  }, []);
 
+  useEffect(() => {
+    const canvasContainer = document.getElementById("canvas-container");
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
         const canvas = p.createCanvas(400, 400);
         canvas.parent(canvasContainer);
-        currentTool = switchTool(tool, isDraw, brushes, rectangles, circles);
+        currentTool = switchTool(
+          tool,
+          isDraw,
+          brushes,
+          rectangles,
+          circles,
+          socket
+        );
         currentTool.setup(p);
       };
 
-      //draw loop
       p.draw = () => {
-        console.log("circles", circles);
         p.background("pink");
         currentTool.draw();
         for (const brush of brushes.current) {

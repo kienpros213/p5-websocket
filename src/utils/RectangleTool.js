@@ -1,5 +1,5 @@
 class RectangleTool {
-  constructor(rectangles, isDraw) {
+  constructor(rectangles, isDraw, socket) {
     this.isDraw = isDraw;
     this.startX = 0;
     this.startY = 0;
@@ -7,6 +7,7 @@ class RectangleTool {
     this.height = 0;
     this.rectangles = rectangles;
     this.canClear = true;
+    this.socket = socket;
   }
 
   setup(p) {
