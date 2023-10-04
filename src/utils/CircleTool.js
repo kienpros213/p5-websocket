@@ -13,14 +13,45 @@ class CircleTool {
   }
 
   draw() {
-    if (this.isDraw) {
-      this.radius = Math.sqrt(
-        Math.pow(this.startX - this.p.mouseX, 2) +
-          Math.pow(this.startY - this.p.mouseY, 2)
-      );
-      this.p.fill(0, 0, 255, 100);
-      this.p.noStroke();
-      this.p.circle(this.startX, this.startY, this.radius);
+    // if (this.isDraw) {
+    //   this.radius = Math.sqrt(
+    //     Math.pow(this.startX - this.p.mouseX, 2) +
+    //       Math.pow(this.startY - this.p.mouseY, 2)
+    //   );
+    //   const payload = {
+    //     startX: this.startX,
+    //     startY: this.startY,
+    //     radius: this.radius,
+    //   };
+    //   this.p.fill(0, 0, 255, 100);
+    //   this.p.noStroke();
+    //   this.p.circle(payload.startX, payload.startY, payload.radius);
+    //   if (this.socket) {
+    //     this.socket.current.emit("clientCircleDraw", payload);
+    //   }
+    // }
+  }
+
+  mouseDragged() {
+    this.radius = Math.sqrt(
+      Math.pow(this.startX - this.p.mouseX, 2) +
+        Math.pow(this.startY - this.p.mouseY, 2)
+    );
+
+    const payload = {
+      startX: this.startX,
+      startY: this.startY,
+      radius: this.radius,
+    };
+
+    this.p.background("pink");
+
+    this.p.fill(0, 0, 255, 100);
+    this.p.noStroke();
+    this.p.circle(payload.startX, payload.startY, payload.radius);
+
+    if (this.socket) {
+      this.socket.current.emit("clientCircleDraw", payload);
     }
   }
 
@@ -32,13 +63,18 @@ class CircleTool {
 
   mouseReleased() {
     this.isDraw = false;
-    this.width = this.p.mouseX - this.startX;
-    this.height = this.p.mouseY - this.startY;
-    this.circles.current.push({
+    const payload = {
       startX: this.startX,
       startY: this.startY,
       radius: this.radius,
-    });
+    };
+    this.width = this.p.mouseX - this.startX;
+    this.height = this.p.mouseY - this.startY;
+    this.circles.current.push(payload);
+
+    if (this.socket) {
+      this.socket.emit("clientPushCircle", payload);
+    }
   }
 }
 

@@ -10,6 +10,29 @@ class BrushTool {
   }
 
   draw() {
+    // const brushDrawData = {
+    //   startX: this.p.mouseX,
+    //   startY: this.p.mouseY,
+    //   endX: this.p.pmouseX,
+    //   endY: this.p.pmouseY,
+    // };
+    // if (this.isDraw) {
+    //   this.p.stroke(0);
+    //   this.p.strokeWeight(5);
+    //   this.brushes.current.push(brushDrawData);
+    //   this.p.line(
+    //     brushDrawData.startX,
+    //     brushDrawData.startY,
+    //     brushDrawData.endX,
+    //     brushDrawData.endY
+    //   );
+    //   console.log(brushDrawData);
+    //   if (this.socket) {
+    //     this.socket.current.emit("clientBrushDraw", brushDrawData);
+    //   }
+    // }
+  }
+  mouseDragged() {
     const brushDrawData = {
       startX: this.p.mouseX,
       startY: this.p.mouseY,
@@ -20,16 +43,16 @@ class BrushTool {
     if (this.isDraw) {
       this.p.stroke(0);
       this.p.strokeWeight(5);
+      this.brushes.current.push(brushDrawData);
       this.p.line(
         brushDrawData.startX,
         brushDrawData.startY,
         brushDrawData.endX,
         brushDrawData.endY
       );
-      this.brushes.current.push(brushDrawData);
 
       if (this.socket) {
-        this.socket.emit("clientBrushDraw", brushDrawData);
+        this.socket.current.emit("clientBrushDraw", brushDrawData);
       }
     }
   }

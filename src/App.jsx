@@ -2,30 +2,40 @@ import React, { useEffect, useRef, useState } from "react";
 import p5 from "p5";
 import { switchTool } from "./utils/toolFactory";
 import { io } from "socket.io-client";
+import { redrawCanvas } from "./utils/redrawFunction";
+import { drawPayload } from "./utils/drawPayload";
 
 const App = () => {
   let sketch = null;
   const [tool, setTool] = useState("brushTool");
-  const [socket, setSocket] = useState();
-  // const socket = useRef(null);
+  const socket = useRef();
+  // const [socket, setSocket] = useState(null);
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
   let isDraw = false;
   let currentTool;
 
-  useEffect(() => {
-    const initSocket = io("ws://localhost:3000");
-    setSocket(initSocket);
-  }, []);
+  // useEffect(() => {
+  //   const initSocket = io("ws://localhost:3000");
+  //   setSocket(initSocket);
+
+  //   return () => {
+  //     initSocket.disconnect();
+  //   };
+  // }, []);
+
+  socket.current = io("ws://localhost:3000");
 
   useEffect(() => {
     const canvasContainer = document.getElementById("canvas-container");
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
-        const canvas = p.createCanvas(400, 400);
+        const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
+        p.frameRate(120);
+        p.background("pink");
         currentTool = switchTool(
           tool,
           isDraw,
@@ -38,30 +48,47 @@ const App = () => {
       };
 
       p.draw = () => {
-        p.background("pink");
-        currentTool.draw();
-        for (const brush of brushes.current) {
-          p.stroke(0);
-          p.strokeWeight(5);
-          p.line(brush.startX, brush.startY, brush.endX, brush.endY);
-        }
+        redrawCanvas(p, brushes, rectangles, circles);
+        // drawPayload(socket, brushes, rectangles, circles);
+        if (socket) {
+          socket.current.on("serverBrushDraw", (payload) => {
+            p.stroke(0);
+            p.strokeWeight(5);
+            p.line(payload.startX, payload.startY, payload.endX, payload.endY);
+          });
 
-        for (const rectangle of rectangles.current) {
-          p.fill(0, 0, 255, 100);
-          p.noStroke();
-          p.rect(
-            rectangle.startX,
-            rectangle.startY,
-            rectangle.width,
-            rectangle.height
-          );
-        }
+          socket.current.on("serverRectDraw", (payload) => {
+            p.background("pink");
+            p.fill(0, 0, 255, 100);
+            p.noStroke();
+            p.rect(
+              payload.startX,
+              payload.startY,
+              payload.width,
+              payload.height
+            );
+          });
 
-        for (const circle of circles.current) {
-          p.fill(0, 0, 255, 100);
-          p.noStroke();
-          p.circle(circle.startX, circle.startY, circle.radius);
+          socket.current.on("serverCircleDraw", (payload) => {
+            console.log(circles);
+            p.background("pink");
+            p.fill(0, 0, 255, 100);
+            p.noStroke();
+            p.circle(payload.startX, payload.startY, payload.radius);
+          });
+
+          socket.current.on("serverPushCircle", (payload) => {
+            circles.current.push(payload);
+          });
+
+          socket.current.on("serverPushRect", (payload) => {
+            rectangles.current.push(payload);
+          });
         }
+      };
+
+      p.mouseDragged = () => {
+        currentTool.mouseDragged();
       };
 
       //mousedown
@@ -81,13 +108,11 @@ const App = () => {
       sketch.remove();
     };
   }, [tool]);
-
   return (
     <div>
       <button
         onClick={() => {
           setTool("brushTool");
-          console.log(tool);
         }}
       >
         brush
@@ -95,7 +120,6 @@ const App = () => {
       <button
         onClick={() => {
           setTool("rectTool");
-          console.log(tool);
         }}
       >
         rectangle tool
@@ -104,7 +128,6 @@ const App = () => {
       <button
         onClick={() => {
           setTool("circleTool");
-          console.log(tool);
         }}
       >
         circle tool

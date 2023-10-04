@@ -6,7 +6,6 @@ class RectangleTool {
     this.width = 0;
     this.height = 0;
     this.rectangles = rectangles;
-    this.canClear = true;
     this.socket = socket;
   }
 
@@ -15,18 +14,44 @@ class RectangleTool {
   }
 
   draw() {
-    if (this.isDraw) {
-      this.p.fill(0, 0, 255, 100);
-      this.p.noStroke();
-      this.p.rect(
-        this.startX,
-        this.startY,
-        this.p.mouseX - this.startX,
-        this.p.mouseY - this.startY
-      );
-    }
+    // if (this.isDraw) {
+    //   const payload = {
+    //     startX: this.startX,
+    //     startY: this.startY,
+    //     width: this.p.mouseX - this.startX,
+    //     height: this.p.mouseY - this.startY,
+    //   };
+    //   this.p.fill(0, 0, 255, 100);
+    //   this.p.noStroke();
+    //   this.p.rect(
+    //     payload.startX,
+    //     payload.startY,
+    //     payload.width,
+    //     payload.height
+    //   );
+    //   if (this.socket) {
+    //     this.socket.current.emit("clientRectDraw", payload);
+    //   }
+    // }
   }
 
+  mouseDragged() {
+    console.log("rectangle");
+    const payload = {
+      startX: this.startX,
+      startY: this.startY,
+      width: this.p.mouseX - this.startX,
+      height: this.p.mouseY - this.startY,
+    };
+    this.p.background("pink");
+
+    this.p.fill(0, 0, 255, 100);
+    this.p.noStroke();
+    this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
+    if (this.socket) {
+      this.socket.current.emit("clientRectDraw", payload);
+    }
+  }
   mousePressed() {
     this.isDraw = true;
     this.startX = this.p.mouseX;
@@ -35,14 +60,18 @@ class RectangleTool {
 
   mouseReleased() {
     this.isDraw = false;
-    this.width = this.p.mouseX - this.startX;
-    this.height = this.p.mouseY - this.startY;
-    this.rectangles.current.push({
+    const payload = {
       startX: this.startX,
       startY: this.startY,
       width: this.p.mouseX - this.startX,
       height: this.p.mouseY - this.startY,
-    });
+    };
+    this.width = this.p.mouseX - this.startX;
+    this.height = this.p.mouseY - this.startY;
+    this.rectangles.current.push(payload);
+    if (this.socket) {
+      this.socket.current.emit("clientPushRect", payload);
+    }
   }
 }
 
