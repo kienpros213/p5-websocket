@@ -13,30 +13,9 @@ class RectangleTool {
     this.p = p;
   }
 
-  draw() {
-    // if (this.isDraw) {
-    //   const payload = {
-    //     startX: this.startX,
-    //     startY: this.startY,
-    //     width: this.p.mouseX - this.startX,
-    //     height: this.p.mouseY - this.startY,
-    //   };
-    //   this.p.fill(0, 0, 255, 100);
-    //   this.p.noStroke();
-    //   this.p.rect(
-    //     payload.startX,
-    //     payload.startY,
-    //     payload.width,
-    //     payload.height
-    //   );
-    //   if (this.socket) {
-    //     this.socket.current.emit("clientRectDraw", payload);
-    //   }
-    // }
-  }
+  draw() {}
 
   mouseDragged() {
-    console.log("rectangle");
     const payload = {
       startX: this.startX,
       startY: this.startY,
@@ -49,7 +28,7 @@ class RectangleTool {
     this.p.noStroke();
     this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
     if (this.socket) {
-      this.socket.current.emit("clientRectDraw", payload);
+      this.socket.emit("clientRectDraw", payload);
     }
   }
   mousePressed() {
@@ -70,7 +49,7 @@ class RectangleTool {
     this.height = this.p.mouseY - this.startY;
     this.rectangles.current.push(payload);
     if (this.socket) {
-      this.socket.current.emit("clientPushRect", payload);
+      this.socket.emit("clientPushRect", payload);
     }
   }
 }

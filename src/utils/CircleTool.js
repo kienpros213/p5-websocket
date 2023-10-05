@@ -12,25 +12,7 @@ class CircleTool {
     this.p = p;
   }
 
-  draw() {
-    // if (this.isDraw) {
-    //   this.radius = Math.sqrt(
-    //     Math.pow(this.startX - this.p.mouseX, 2) +
-    //       Math.pow(this.startY - this.p.mouseY, 2)
-    //   );
-    //   const payload = {
-    //     startX: this.startX,
-    //     startY: this.startY,
-    //     radius: this.radius,
-    //   };
-    //   this.p.fill(0, 0, 255, 100);
-    //   this.p.noStroke();
-    //   this.p.circle(payload.startX, payload.startY, payload.radius);
-    //   if (this.socket) {
-    //     this.socket.current.emit("clientCircleDraw", payload);
-    //   }
-    // }
-  }
+  draw() {}
 
   mouseDragged() {
     this.radius = Math.sqrt(
@@ -51,7 +33,7 @@ class CircleTool {
     this.p.circle(payload.startX, payload.startY, payload.radius);
 
     if (this.socket) {
-      this.socket.current.emit("clientCircleDraw", payload);
+      this.socket.emit("clientCircleDraw", payload);
     }
   }
 
