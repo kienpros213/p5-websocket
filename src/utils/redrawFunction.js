@@ -1,7 +1,7 @@
 export function redrawCanvas(p, brushes, rectangles, circles) {
-  redrawBrush(p, brushes);
-  redrawRectangle(p, rectangles);
   redrawCircle(p, circles);
+  redrawRectangle(p, rectangles);
+  redrawBrush(p, brushes);
 }
 
 function redrawBrush(p, brushes) {

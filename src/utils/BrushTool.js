@@ -1,6 +1,5 @@
 class BrushTool {
-  constructor(brushes, isDraw, socket) {
-    this.isDraw = isDraw;
+  constructor(brushes, socket) {
     this.brushes = brushes;
     this.socket = socket;
   }
@@ -11,37 +10,33 @@ class BrushTool {
 
   draw() {}
   mouseDragged() {
+    console.log(this.brushes);
     const brushDrawData = {
       startX: this.p.mouseX,
       startY: this.p.mouseY,
       endX: this.p.pmouseX,
       endY: this.p.pmouseY,
     };
+    this.p.background("pink");
+    this.p.stroke(0);
+    this.p.strokeWeight(5);
+    this.p.line(
+      brushDrawData.startX,
+      brushDrawData.startY,
+      brushDrawData.endX,
+      brushDrawData.endY
+    );
 
-    if (this.isDraw) {
-      this.p.stroke(0);
-      this.p.strokeWeight(5);
-      this.brushes.current.push(brushDrawData);
-      this.p.line(
-        brushDrawData.startX,
-        brushDrawData.startY,
-        brushDrawData.endX,
-        brushDrawData.endY
-      );
+    this.brushes.current.push(brushDrawData);
 
-      if (this.socket) {
-        this.socket.emit("clientBrushDraw", brushDrawData);
-      }
+    if (this.socket) {
+      this.socket.emit("clientBrushDraw", brushDrawData);
     }
   }
 
-  mousePressed() {
-    this.isDraw = true;
-  }
+  mousePressed() {}
 
-  mouseReleased() {
-    this.isDraw = false;
-  }
+  mouseReleased() {}
 }
 
 export default BrushTool;

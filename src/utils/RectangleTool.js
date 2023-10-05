@@ -1,6 +1,5 @@
 class RectangleTool {
-  constructor(rectangles, isDraw, socket) {
-    this.isDraw = isDraw;
+  constructor(rectangles, socket) {
     this.startX = 0;
     this.startY = 0;
     this.width = 0;
@@ -23,7 +22,6 @@ class RectangleTool {
       height: this.p.mouseY - this.startY,
     };
     this.p.background("pink");
-
     this.p.fill(0, 0, 255, 100);
     this.p.noStroke();
     this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
@@ -32,13 +30,11 @@ class RectangleTool {
     }
   }
   mousePressed() {
-    this.isDraw = true;
     this.startX = this.p.mouseX;
     this.startY = this.p.mouseY;
   }
 
   mouseReleased() {
-    this.isDraw = false;
     const payload = {
       startX: this.startX,
       startY: this.startY,

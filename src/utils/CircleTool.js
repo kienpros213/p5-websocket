@@ -1,6 +1,5 @@
 class CircleTool {
-  constructor(circles, isDraw, socket) {
-    this.isDraw = isDraw;
+  constructor(circles, socket) {
     this.startX = 0;
     this.startY = 0;
     this.radius;
@@ -27,7 +26,6 @@ class CircleTool {
     };
 
     this.p.background("pink");
-
     this.p.fill(0, 0, 255, 100);
     this.p.noStroke();
     this.p.circle(payload.startX, payload.startY, payload.radius);
@@ -38,13 +36,11 @@ class CircleTool {
   }
 
   mousePressed() {
-    this.isDraw = true;
     this.startX = this.p.mouseX;
     this.startY = this.p.mouseY;
   }
 
   mouseReleased() {
-    this.isDraw = false;
     const payload = {
       startX: this.startX,
       startY: this.startY,

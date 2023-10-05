@@ -2,80 +2,28 @@ import { useEffect, useState, useRef } from "react";
 import p5 from "p5";
 import { switchTool } from "../utils/toolFactory";
 import { redrawCanvas } from "../utils/redrawFunction";
+import { socketListener } from "../utils/SocketListener";
 
 const Canvas = (props) => {
-  let sketch = null;
   const [tool, setTool] = useState("brushTool");
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
-  let payloadArray = useRef([]);
-  let isDraw = false;
-  let currentTool;
-
-  function recievePayload() {
-    if (props.socket) {
-      props.socket.on("serverEmitPayload", (payload) => {
-        payloadArray.current.push(payload);
-        console.log(payloadArray);
-      });
-    }
-  }
-
-  function sendPayload() {
-    if (props.socket) {
-      props.socket.emit("sendPayload", {
-        startX: 1,
-        startY: 2,
-        width: 3,
-        height: 4,
-      });
-    }
-  }
+  let currentTool = null;
+  let sketch = null;
 
   useEffect(() => {
     const canvasContainer = document.getElementById("canvas-container");
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
-        if (props.socket) {
-          // props.socket.on("serverEmitPayload", (payload) => {
-          //   payloadArray.current.push(payload);
-          //   console.log(payloadArray);
-          // });
-
-          props.socket.on("serverBrushDraw", (payload) => {
-            p.stroke(0);
-            p.strokeWeight(5);
-            p.line(payload.startX, payload.startY, payload.endX, payload.endY);
-          });
-
-          props.socket.on("serverRectDraw", (payload) => {
-            p.background("pink");
-            redrawCanvas(p, brushes, rectangles, circles);
-            p.fill(0, 0, 255, 100);
-            p.noStroke();
-            p.rect(
-              payload.startX,
-              payload.startY,
-              payload.width,
-              payload.height
-            );
-          });
-
-          props.socket.on("serverPushCircle", (payload) => {
-            circles.current.push(payload);
-          });
-          props.socket.on("serverPushRect", (payload) => {
-            rectangles.current.push(payload);
-          });
-        }
+        redrawCanvas(p, brushes, rectangles, circles);
+        socketListener(props.socket, p, brushes, rectangles, circles);
         const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
         p.background("pink");
         currentTool = switchTool(
           tool,
-          isDraw,
           brushes,
           rectangles,
           circles,
@@ -84,7 +32,6 @@ const Canvas = (props) => {
         currentTool.setup(p);
         // mouseDragged
         p.mouseDragged = () => {
-          sendPayload();
           currentTool.mouseDragged();
           redrawCanvas(p, brushes, rectangles, circles);
         };
@@ -100,9 +47,6 @@ const Canvas = (props) => {
         };
 
         p.frameRate(60);
-        return () => {
-          sketch.remove();
-        };
       };
 
       p.draw = () => {};
@@ -110,18 +54,12 @@ const Canvas = (props) => {
 
     return () => {
       sketch.remove();
+      console.log("removed");
     };
   }, [tool]);
 
   return (
     <div>
-      <button
-        onClick={() => {
-          sendPayload();
-        }}
-      >
-        send payload
-      </button>
       <button
         onClick={() => {
           setTool("brushTool");
