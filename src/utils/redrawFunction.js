@@ -7,6 +7,7 @@ export function redrawCanvas(
   color,
   strokeWeight
 ) {
+  console.log(brushes);
   redrawBrush(p, brushes, color, strokeWeight);
   redrawRectangle(p, rectangles, color, strokeWeight);
   redrawCircle(p, circles, color, strokeWeight);

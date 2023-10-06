@@ -21,17 +21,7 @@ const Canvas = (props) => {
     const canvasContainer = document.getElementById("canvas-container");
     sketch = new p5((p) => {
       //canvas setup
-
       p.setup = () => {
-        redrawCanvas(
-          p,
-          brushes,
-          rectangles,
-          circles,
-          freeShapes,
-          color,
-          strokeWeight
-        );
         socketListener(props.socket, p, brushes, rectangles, circles);
         const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
@@ -47,6 +37,15 @@ const Canvas = (props) => {
           props.socket
         );
         currentTool.setup(p);
+        redrawCanvas(
+          p,
+          brushes,
+          rectangles,
+          circles,
+          freeShapes,
+          color,
+          strokeWeight
+        );
         // mouseDragged
         p.mouseDragged = () => {
           currentTool.mouseDragged();
