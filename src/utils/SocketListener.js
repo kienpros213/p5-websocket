@@ -13,16 +13,14 @@ export function socketListener(socket, p, brushes, rectangles, circles) {
     socket.on("serverRectDraw", (payload) => {
       p.background("pink");
       redrawCanvas(p, brushes, rectangles, circles);
-      p.fill(0, 0, 255, 100);
-      p.noStroke();
+      p.noFill();
       p.rect(payload.startX, payload.startY, payload.width, payload.height);
     });
 
     socket.on("serverCircleDraw", (payload) => {
       p.background("pink");
       redrawCanvas(p, brushes, rectangles, circles);
-      p.fill(0, 0, 255, 100);
-      p.noStroke();
+      p.noFill();
       p.circle(payload.startX, payload.startY, payload.radius);
     });
 

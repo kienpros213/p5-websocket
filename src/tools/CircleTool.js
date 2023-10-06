@@ -1,5 +1,8 @@
-class CircleTool {
+import { BaseTool } from "./BaseTool";
+
+class CircleTool extends BaseTool {
   constructor(circles, socket) {
+    super();
     this.startX = 0;
     this.startY = 0;
     this.radius;
@@ -26,8 +29,7 @@ class CircleTool {
     };
 
     this.p.background("pink");
-    this.p.fill(0, 0, 255, 100);
-    this.p.noStroke();
+    this.p.noFill();
     this.p.circle(payload.startX, payload.startY, payload.radius);
 
     if (this.socket) {

@@ -1,7 +1,8 @@
-export function redrawCanvas(p, brushes, rectangles, circles) {
+export function redrawCanvas(p, brushes, rectangles, circles, freeShapes) {
   redrawCircle(p, circles);
   redrawRectangle(p, rectangles);
   redrawBrush(p, brushes);
+  redrawFreeShape(p, freeShapes);
 }
 
 function redrawBrush(p, brushes) {
@@ -14,8 +15,7 @@ function redrawBrush(p, brushes) {
 
 function redrawRectangle(p, rectangles) {
   for (const rectangle of rectangles.current) {
-    p.fill(0, 0, 255, 100);
-    p.noStroke();
+    p.noFill();
     p.rect(
       rectangle.startX,
       rectangle.startY,
@@ -27,8 +27,17 @@ function redrawRectangle(p, rectangles) {
 
 function redrawCircle(p, circles) {
   for (const circle of circles.current) {
-    p.fill(0, 0, 255, 100);
-    p.noStroke();
+    p.noFill();
     p.circle(circle.startX, circle.startY, circle.radius);
+  }
+}
+
+function redrawFreeShape(p, freeShapes) {
+  for (const freeShapeArrays of freeShapes.current) {
+    p.beginShape();
+    for (const shapePoint of freeShapeArrays) {
+      p.vertex(shapePoint.startX, shapePoint.startY);
+    }
+    p.endShape(p.CLOSE);
   }
 }

@@ -1,5 +1,8 @@
-class BrushTool {
+import { BaseTool } from "./BaseTool";
+
+class BrushTool extends BaseTool {
   constructor(brushes, socket) {
+    super();
     this.brushes = brushes;
     this.socket = socket;
   }

@@ -9,15 +9,17 @@ const Canvas = (props) => {
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
+  let freeShapes = useRef([]);
   let currentTool = null;
   let sketch = null;
+  // let snapshot;
 
   useEffect(() => {
     const canvasContainer = document.getElementById("canvas-container");
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
-        redrawCanvas(p, brushes, rectangles, circles);
+        redrawCanvas(p, brushes, rectangles, circles, freeShapes);
         socketListener(props.socket, p, brushes, rectangles, circles);
         const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
@@ -27,13 +29,15 @@ const Canvas = (props) => {
           brushes,
           rectangles,
           circles,
+          freeShapes,
           props.socket
         );
         currentTool.setup(p);
         // mouseDragged
         p.mouseDragged = () => {
           currentTool.mouseDragged();
-          redrawCanvas(p, brushes, rectangles, circles);
+          // p.image(snapshot, 10, 10);
+          redrawCanvas(p, brushes, rectangles, circles, freeShapes);
         };
 
         //mouseDown
@@ -46,10 +50,17 @@ const Canvas = (props) => {
           currentTool.mouseReleased();
         };
 
+        //key
+        p.keyPressed = () => {
+          currentTool.keyPressed();
+        };
+
         p.frameRate(60);
       };
 
-      p.draw = () => {};
+      p.draw = () => {
+        currentTool.draw();
+      };
     });
 
     return () => {
@@ -81,6 +92,14 @@ const Canvas = (props) => {
         }}
       >
         circle tool
+      </button>
+
+      <button
+        onClick={() => {
+          setTool("freeShapeTool");
+        }}
+      >
+        free shape tool
       </button>
       <h1>Rectangle Drawing Tool</h1>
       <div id="canvas-container"></div>

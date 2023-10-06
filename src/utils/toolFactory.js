@@ -1,8 +1,16 @@
-import BrushTool from "./BrushTool";
-import CircleTool from "./CircleTool";
-import RectangleTool from "./RectangleTool";
+import BrushTool from "../tools/BrushTool";
+import CircleTool from "../tools/CircleTool";
+import RectangleTool from "../tools/RectangleTool";
+import FreeShapeTool from "../tools/FreeShapeTool";
 
-export function switchTool(tool, brushes, rectangles, circles, socket) {
+export function switchTool(
+  tool,
+  brushes,
+  rectangles,
+  circles,
+  freeShapes,
+  socket
+) {
   switch (tool) {
     case "brushTool":
       return new BrushTool(brushes, socket);
@@ -10,5 +18,7 @@ export function switchTool(tool, brushes, rectangles, circles, socket) {
       return new RectangleTool(rectangles, socket);
     case "circleTool":
       return new CircleTool(circles, socket);
+    case "freeShapeTool":
+      return new FreeShapeTool(socket, freeShapes);
   }
 }

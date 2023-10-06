@@ -1,5 +1,9 @@
-class RectangleTool {
+import { extend } from "lodash";
+import { BaseTool } from "./BaseTool";
+
+class RectangleTool extends BaseTool {
   constructor(rectangles, socket) {
+    super();
     this.startX = 0;
     this.startY = 0;
     this.width = 0;
@@ -22,8 +26,7 @@ class RectangleTool {
       height: this.p.mouseY - this.startY,
     };
     this.p.background("pink");
-    this.p.fill(0, 0, 255, 100);
-    this.p.noStroke();
+    this.p.noFill();
     this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
     if (this.socket) {
       this.socket.emit("clientRectDraw", payload);
