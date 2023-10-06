@@ -1,12 +1,13 @@
 import { BaseTool } from "./BaseTool";
 
 class CircleTool extends BaseTool {
-  constructor(circles, socket) {
+  constructor(circles, color, socket) {
     super();
     this.startX = 0;
     this.startY = 0;
     this.radius;
     this.circles = circles;
+    this.color = color;
     this.socket = socket;
   }
 

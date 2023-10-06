@@ -1,9 +1,10 @@
 import { BaseTool } from "./BaseTool";
 
 class BrushTool extends BaseTool {
-  constructor(brushes, socket) {
+  constructor(brushes, color, socket) {
     super();
     this.brushes = brushes;
+    this.color = color;
     this.socket = socket;
   }
 
@@ -13,7 +14,7 @@ class BrushTool extends BaseTool {
 
   draw() {}
   mouseDragged() {
-    console.log(this.brushes);
+    console.log(this.color);
     const brushDrawData = {
       startX: this.p.mouseX,
       startY: this.p.mouseY,
@@ -21,7 +22,7 @@ class BrushTool extends BaseTool {
       endY: this.p.pmouseY,
     };
     this.p.background("pink");
-    this.p.stroke(0);
+    this.p.stroke(this.color);
     this.p.strokeWeight(5);
     this.p.line(
       brushDrawData.startX,

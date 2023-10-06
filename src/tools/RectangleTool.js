@@ -2,13 +2,14 @@ import { extend } from "lodash";
 import { BaseTool } from "./BaseTool";
 
 class RectangleTool extends BaseTool {
-  constructor(rectangles, socket) {
+  constructor(rectangles, color, socket) {
     super();
     this.startX = 0;
     this.startY = 0;
     this.width = 0;
     this.height = 0;
     this.rectangles = rectangles;
+    this.color = color;
     this.socket = socket;
   }
 

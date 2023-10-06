@@ -3,6 +3,7 @@ import p5 from "p5";
 import { switchTool } from "../utils/toolFactory";
 import { redrawCanvas } from "../utils/redrawFunction";
 import { socketListener } from "../utils/SocketListener";
+import { ChromePicker } from "react-color";
 
 const Canvas = (props) => {
   const [tool, setTool] = useState("brushTool");
@@ -10,6 +11,8 @@ const Canvas = (props) => {
   let brushes = useRef([]);
   let circles = useRef([]);
   let freeShapes = useRef([]);
+  const [color, setColor] = useState("#fffff");
+  let strokeWeight = useRef();
   let currentTool = null;
   let sketch = null;
   // let snapshot;
@@ -19,7 +22,7 @@ const Canvas = (props) => {
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
-        redrawCanvas(p, brushes, rectangles, circles, freeShapes);
+        redrawCanvas(p, brushes, rectangles, circles, freeShapes, color);
         socketListener(props.socket, p, brushes, rectangles, circles);
         const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
@@ -30,6 +33,7 @@ const Canvas = (props) => {
           rectangles,
           circles,
           freeShapes,
+          color,
           props.socket
         );
         currentTool.setup(p);
@@ -37,7 +41,7 @@ const Canvas = (props) => {
         p.mouseDragged = () => {
           currentTool.mouseDragged();
           // p.image(snapshot, 10, 10);
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes);
+          redrawCanvas(p, brushes, rectangles, circles, freeShapes, color);
         };
 
         //mouseDown
@@ -67,10 +71,17 @@ const Canvas = (props) => {
       sketch.remove();
       console.log("removed");
     };
-  }, [tool]);
+  }, [tool, color]);
 
   return (
     <div>
+      <ChromePicker
+        color={color}
+        onChange={(e) => {
+          setColor(e.hex);
+          console.log(color);
+        }}
+      />
       <button
         onClick={() => {
           setTool("brushTool");

@@ -1,14 +1,15 @@
 import { BaseTool } from "./BaseTool";
 
 class FreeShapeTool extends BaseTool {
-  constructor(socket, freeShapes) {
+  constructor(socket, freeShapes, color) {
     super();
     this.startX = 0;
     this.startY = 0;
-    this.socket = socket;
     this.isDraw = false;
     this.shapeArray = [];
     this.freeShapes = freeShapes;
+    this.color = color;
+    this.socket = socket;
   }
 
   setup(p) {
