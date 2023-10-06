@@ -1,14 +1,12 @@
 import { BaseTool } from "./BaseTool";
 
 class CircleTool extends BaseTool {
-  constructor(circles, color, socket) {
-    super();
+  constructor(color, strokeWeight, circles, socket) {
+    super(color, strokeWeight, socket);
+    this.circles = circles;
     this.startX = 0;
     this.startY = 0;
     this.radius;
-    this.circles = circles;
-    this.color = color;
-    this.socket = socket;
   }
 
   setup(p) {
@@ -48,6 +46,8 @@ class CircleTool extends BaseTool {
       startX: this.startX,
       startY: this.startY,
       radius: this.radius,
+      color: this.color,
+      strokeWeight: this.strokeWeight,
     };
     this.width = this.p.mouseX - this.startX;
     this.height = this.p.mouseY - this.startY;

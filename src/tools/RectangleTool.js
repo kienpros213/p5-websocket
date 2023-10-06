@@ -1,16 +1,13 @@
-import { extend } from "lodash";
 import { BaseTool } from "./BaseTool";
 
 class RectangleTool extends BaseTool {
-  constructor(rectangles, color, socket) {
-    super();
+  constructor(color, strokeWeight, rectangles, socket) {
+    super(color, strokeWeight, socket);
+    this.rectangles = rectangles;
     this.startX = 0;
     this.startY = 0;
     this.width = 0;
     this.height = 0;
-    this.rectangles = rectangles;
-    this.color = color;
-    this.socket = socket;
   }
 
   setup(p) {
@@ -20,6 +17,7 @@ class RectangleTool extends BaseTool {
   draw() {}
 
   mouseDragged() {
+    console.log(this.strokeWeight);
     const payload = {
       startX: this.startX,
       startY: this.startY,
@@ -44,6 +42,8 @@ class RectangleTool extends BaseTool {
       startY: this.startY,
       width: this.p.mouseX - this.startX,
       height: this.p.mouseY - this.startY,
+      color: this.color,
+      strokeWeight: this.strokeWeight,
     };
     this.width = this.p.mouseX - this.startX;
     this.height = this.p.mouseY - this.startY;

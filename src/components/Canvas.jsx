@@ -12,7 +12,7 @@ const Canvas = (props) => {
   let circles = useRef([]);
   let freeShapes = useRef([]);
   const [color, setColor] = useState("#fffff");
-  let strokeWeight = useRef();
+  const [strokeWeight, setStrokeWeight] = useState(3);
   let currentTool = null;
   let sketch = null;
   // let snapshot;
@@ -21,8 +21,17 @@ const Canvas = (props) => {
     const canvasContainer = document.getElementById("canvas-container");
     sketch = new p5((p) => {
       //canvas setup
+
       p.setup = () => {
-        redrawCanvas(p, brushes, rectangles, circles, freeShapes, color);
+        redrawCanvas(
+          p,
+          brushes,
+          rectangles,
+          circles,
+          freeShapes,
+          color,
+          strokeWeight
+        );
         socketListener(props.socket, p, brushes, rectangles, circles);
         const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
@@ -34,6 +43,7 @@ const Canvas = (props) => {
           circles,
           freeShapes,
           color,
+          strokeWeight,
           props.socket
         );
         currentTool.setup(p);
@@ -41,7 +51,15 @@ const Canvas = (props) => {
         p.mouseDragged = () => {
           currentTool.mouseDragged();
           // p.image(snapshot, 10, 10);
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes, color);
+          redrawCanvas(
+            p,
+            brushes,
+            rectangles,
+            circles,
+            freeShapes,
+            color,
+            strokeWeight
+          );
         };
 
         //mouseDown
@@ -71,7 +89,7 @@ const Canvas = (props) => {
       sketch.remove();
       console.log("removed");
     };
-  }, [tool, color]);
+  }, [tool, color, strokeWeight]);
 
   return (
     <div>
@@ -79,9 +97,17 @@ const Canvas = (props) => {
         color={color}
         onChange={(e) => {
           setColor(e.hex);
-          console.log(color);
         }}
       />
+      <input
+        type="text"
+        placeholder="stroke weight"
+        // value={strokeWeight}
+        onBlur={(e) => {
+          console.log(strokeWeight);
+          setStrokeWeight(e.target.value);
+        }}
+      ></input>
       <button
         onClick={() => {
           setTool("brushTool");

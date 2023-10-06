@@ -4,25 +4,28 @@ export function redrawCanvas(
   rectangles,
   circles,
   freeShapes,
-  color
+  color,
+  strokeWeight
 ) {
-  redrawCircle(p, circles, color);
-  redrawRectangle(p, rectangles, color);
-  redrawBrush(p, brushes, color);
-  redrawFreeShape(p, freeShapes, color);
+  redrawBrush(p, brushes, color, strokeWeight);
+  redrawRectangle(p, rectangles, color, strokeWeight);
+  redrawCircle(p, circles, color, strokeWeight);
+  redrawFreeShape(p, freeShapes, color, strokeWeight);
 }
 
-function redrawBrush(p, brushes, color) {
+function redrawBrush(p, brushes) {
   for (const brush of brushes.current) {
-    p.stroke(color);
-    p.strokeWeight(5);
+    p.stroke(brush.color);
+    p.strokeWeight(brush.strokeWeight);
     p.line(brush.startX, brush.startY, brush.endX, brush.endY);
   }
 }
 
-function redrawRectangle(p, rectangles, color) {
+function redrawRectangle(p, rectangles) {
   for (const rectangle of rectangles.current) {
-    p.stroke(color);
+    console.log(rectangle);
+    p.stroke(rectangle.color);
+    p.strokeWeight(rectangle.strokeWeight);
     p.noFill();
     p.rect(
       rectangle.startX,
@@ -33,17 +36,19 @@ function redrawRectangle(p, rectangles, color) {
   }
 }
 
-function redrawCircle(p, circles, color) {
+function redrawCircle(p, circles) {
   for (const circle of circles.current) {
-    p.stroke(color);
+    p.stroke(circle.color);
+    p.strokeWeight(circle.strokeWeight);
     p.noFill();
     p.circle(circle.startX, circle.startY, circle.radius);
   }
 }
 
-function redrawFreeShape(p, freeShapes, color) {
+function redrawFreeShape(p, freeShapes, color, strokeWeight) {
   for (const freeShapeArrays of freeShapes.current) {
     p.stroke(color);
+    p.strokeWeight(strokeWeight);
     p.beginShape();
     for (const shapePoint of freeShapeArrays) {
       p.vertex(shapePoint.startX, shapePoint.startY);

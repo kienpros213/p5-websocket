@@ -1,15 +1,12 @@
 import { BaseTool } from "./BaseTool";
 
 class FreeShapeTool extends BaseTool {
-  constructor(socket, freeShapes, color) {
-    super();
+  constructor(color, strokeWeight, freeShapes, socket) {
+    super(color, strokeWeight, socket);
+    this.freeShapes = freeShapes;
     this.startX = 0;
     this.startY = 0;
-    this.isDraw = false;
     this.shapeArray = [];
-    this.freeShapes = freeShapes;
-    this.color = color;
-    this.socket = socket;
   }
 
   setup(p) {
@@ -18,6 +15,9 @@ class FreeShapeTool extends BaseTool {
 
   draw() {
     this.p.beginShape();
+    this.p.stroke(this.color);
+    this.p.strokeWeight(this.strokeWeight);
+    this.p.noFill();
     for (const shapePoint of this.shapeArray) {
       this.p.vertex(shapePoint.startX, shapePoint.startY);
     }
@@ -28,10 +28,11 @@ class FreeShapeTool extends BaseTool {
   mouseDragged() {}
 
   mousePressed() {
-    console.log(this.freeShapes);
     const point = {
       startX: this.p.mouseX,
       startY: this.p.mouseY,
+      color: this.color,
+      strokeWeight: this.strokeWeight,
     };
     this.startX = this.p.mouseX;
     this.startY = this.p.mouseY;
@@ -42,6 +43,7 @@ class FreeShapeTool extends BaseTool {
 
   keyPressed() {
     if (this.p.keyCode == this.p.ENTER) {
+      this.p.endShape(this.p.CLOSE);
       this.freeShapes.current.push(this.shapeArray);
       this.shapeArray = [];
     }
