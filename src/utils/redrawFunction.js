@@ -7,11 +7,10 @@ export function redrawCanvas(
   color,
   strokeWeight
 ) {
-  console.log(brushes);
-  redrawBrush(p, brushes, color, strokeWeight);
   redrawRectangle(p, rectangles, color, strokeWeight);
   redrawCircle(p, circles, color, strokeWeight);
   redrawFreeShape(p, freeShapes, color, strokeWeight);
+  redrawBrush(p, brushes, color, strokeWeight);
 }
 
 function redrawBrush(p, brushes) {
@@ -24,7 +23,6 @@ function redrawBrush(p, brushes) {
 
 function redrawRectangle(p, rectangles) {
   for (const rectangle of rectangles.current) {
-    console.log(rectangle);
     p.stroke(rectangle.color);
     p.strokeWeight(rectangle.strokeWeight);
     p.noFill();
@@ -46,12 +44,14 @@ function redrawCircle(p, circles) {
   }
 }
 
-function redrawFreeShape(p, freeShapes, color, strokeWeight) {
+function redrawFreeShape(p, freeShapes) {
   for (const freeShapeArrays of freeShapes.current) {
-    p.stroke(color);
-    p.strokeWeight(strokeWeight);
     p.beginShape();
     for (const shapePoint of freeShapeArrays) {
+      console.log(shapePoint);
+      p.noFill();
+      p.stroke(shapePoint.color);
+      p.strokeWeight(shapePoint.strokeWeight);
       p.vertex(shapePoint.startX, shapePoint.startY);
     }
     p.endShape(p.CLOSE);

@@ -1,4 +1,4 @@
-        // console.log(rectangles);
+
         // redrawCanvas(p, brushes, rectangles, circles);
         // if (props.socket) {
         //   props.socket.on("serverBrushDraw", (payload) => {

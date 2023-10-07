@@ -17,14 +17,17 @@ class RectangleTool extends BaseTool {
   draw() {}
 
   mouseDragged() {
-    console.log(this.strokeWeight);
     const payload = {
       startX: this.startX,
       startY: this.startY,
       width: this.p.mouseX - this.startX,
       height: this.p.mouseY - this.startY,
+      color: this.color,
+      strokeWeight: this.strokeWeight,
     };
     this.p.background("pink");
+    this.p.stroke(this.color);
+    this.p.strokeWeight(this.strokeWeight);
     this.p.noFill();
     this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
     if (this.socket) {

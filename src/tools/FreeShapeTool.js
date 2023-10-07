@@ -21,7 +21,6 @@ class FreeShapeTool extends BaseTool {
     for (const shapePoint of this.shapeArray) {
       this.p.vertex(shapePoint.startX, shapePoint.startY);
     }
-    // this.p.endShape(this.p.CLOSE);
     this.p.endShape();
   }
 
@@ -37,6 +36,10 @@ class FreeShapeTool extends BaseTool {
     this.startX = this.p.mouseX;
     this.startY = this.p.mouseY;
     this.shapeArray.push(point);
+
+    if (this.socket) {
+      this.socket.emit("clientFreeShapeDraw", point);
+    }
   }
 
   mouseReleased() {}
@@ -46,6 +49,10 @@ class FreeShapeTool extends BaseTool {
       this.p.endShape(this.p.CLOSE);
       this.freeShapes.current.push(this.shapeArray);
       this.shapeArray = [];
+
+      if (this.socket) {
+        this.socket.emit("clientStopFreeShape", this.shapeArray);
+      }
     }
   }
 }

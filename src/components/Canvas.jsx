@@ -22,7 +22,15 @@ const Canvas = (props) => {
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
-        socketListener(props.socket, p, brushes, rectangles, circles);
+        console.log(freeShapes);
+        socketListener(
+          props.socket,
+          p,
+          brushes,
+          rectangles,
+          circles,
+          freeShapes
+        );
         const canvas = p.createCanvas(700, 700);
         canvas.parent(canvasContainer);
         p.background("pink");
@@ -103,7 +111,6 @@ const Canvas = (props) => {
         placeholder="stroke weight"
         // value={strokeWeight}
         onBlur={(e) => {
-          console.log(strokeWeight);
           setStrokeWeight(e.target.value);
         }}
       ></input>

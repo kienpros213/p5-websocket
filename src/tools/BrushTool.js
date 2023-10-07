@@ -12,7 +12,6 @@ class BrushTool extends BaseTool {
 
   draw() {}
   mouseDragged() {
-    console.log(this.color);
     const brushDrawData = {
       startX: this.p.mouseX,
       startY: this.p.mouseY,
