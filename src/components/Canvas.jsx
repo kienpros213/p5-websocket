@@ -15,6 +15,7 @@ const Canvas = (props) => {
   const [strokeWeight, setStrokeWeight] = useState(3);
   let currentTool = null;
   let sketch = null;
+  let snapshot;
   // let snapshot;
 
   useEffect(() => {
@@ -71,11 +72,13 @@ const Canvas = (props) => {
 
         //mouseDown
         p.mousePressed = () => {
+          snapshot = p.get();
           currentTool.mousePressed();
         };
 
         //mouseUp
         p.mouseReleased = () => {
+          console.log(snapshot);
           currentTool.mouseReleased();
         };
 

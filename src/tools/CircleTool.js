@@ -27,6 +27,8 @@ class CircleTool extends BaseTool {
       radius: this.radius,
     };
 
+    this.p.stroke(this.color);
+    this.p.strokeWeight(this.strokeWeight);
     this.p.background("pink");
     this.p.noFill();
     this.p.circle(payload.startX, payload.startY, payload.radius);
