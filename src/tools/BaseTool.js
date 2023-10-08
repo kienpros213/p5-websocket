@@ -1,7 +1,8 @@
 export class BaseTool {
-  constructor(color, strokeWeight, socket) {
+  constructor(color, strokeWeight, room, socket) {
     this.color = color;
     this.strokeWeight = strokeWeight;
+    this.room = room;
     this.socket = socket;
   }
 

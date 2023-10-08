@@ -1,8 +1,8 @@
 import { BaseTool } from "./BaseTool";
 
 class BrushTool extends BaseTool {
-  constructor(color, strokeWeight, brushes, socket) {
-    super(color, strokeWeight, socket);
+  constructor(color, strokeWeight, room, brushes, socket) {
+    super(color, strokeWeight, room, socket);
     this.brushes = brushes;
   }
 
@@ -19,6 +19,7 @@ class BrushTool extends BaseTool {
       endY: this.p.pmouseY,
       color: this.color,
       strokeWeight: this.strokeWeight,
+      room: this.room,
     };
     this.p.background("pink");
     this.p.stroke(this.color);

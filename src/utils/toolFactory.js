@@ -10,17 +10,18 @@ export function switchTool(
   circles,
   freeShapes,
   color,
+  room,
   strokeWeight,
   socket
 ) {
   switch (tool) {
     case "brushTool":
-      return new BrushTool(color, strokeWeight, brushes, socket);
+      return new BrushTool(color, strokeWeight, room, brushes, socket);
     case "rectTool":
-      return new RectangleTool(color, strokeWeight, rectangles, socket);
+      return new RectangleTool(color, strokeWeight, room, rectangles, socket);
     case "circleTool":
-      return new CircleTool(color, strokeWeight, circles, socket);
+      return new CircleTool(color, strokeWeight, room, circles, socket);
     case "freeShapeTool":
-      return new FreeShapeTool(color, strokeWeight, freeShapes, socket);
+      return new FreeShapeTool(color, strokeWeight, room, freeShapes, socket);
   }
 }

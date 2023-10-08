@@ -1,8 +1,8 @@
 import { BaseTool } from "./BaseTool";
 
 class FreeShapeTool extends BaseTool {
-  constructor(color, strokeWeight, freeShapes, socket) {
-    super(color, strokeWeight, socket);
+  constructor(color, strokeWeight, room, freeShapes, socket) {
+    super(color, strokeWeight, room, socket);
     this.freeShapes = freeShapes;
     this.startX = 0;
     this.startY = 0;
@@ -32,6 +32,7 @@ class FreeShapeTool extends BaseTool {
       startY: this.p.mouseY,
       color: this.color,
       strokeWeight: this.strokeWeight,
+      room: this.room,
     };
     this.startX = this.p.mouseX;
     this.startY = this.p.mouseY;
@@ -51,7 +52,7 @@ class FreeShapeTool extends BaseTool {
       this.shapeArray = [];
 
       if (this.socket) {
-        this.socket.emit("clientStopFreeShape", this.shapeArray);
+        this.socket.emit("clientStopFreeShape", { room: this.room });
       }
     }
   }

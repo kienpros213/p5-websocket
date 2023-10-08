@@ -1,8 +1,8 @@
 import { BaseTool } from "./BaseTool";
 
 class RectangleTool extends BaseTool {
-  constructor(color, strokeWeight, rectangles, socket) {
-    super(color, strokeWeight, socket);
+  constructor(color, strokeWeight, room, rectangles, socket) {
+    super(color, strokeWeight, room, socket);
     this.rectangles = rectangles;
     this.startX = 0;
     this.startY = 0;
@@ -24,6 +24,7 @@ class RectangleTool extends BaseTool {
       height: this.p.mouseY - this.startY,
       color: this.color,
       strokeWeight: this.strokeWeight,
+      room: this.room,
     };
     this.p.background("pink");
     this.p.stroke(this.color);
@@ -47,6 +48,7 @@ class RectangleTool extends BaseTool {
       height: this.p.mouseY - this.startY,
       color: this.color,
       strokeWeight: this.strokeWeight,
+      room: this.room,
     };
     this.width = this.p.mouseX - this.startX;
     this.height = this.p.mouseY - this.startY;

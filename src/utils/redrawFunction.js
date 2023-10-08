@@ -48,7 +48,6 @@ function redrawFreeShape(p, freeShapes) {
   for (const freeShapeArrays of freeShapes.current) {
     p.beginShape();
     for (const shapePoint of freeShapeArrays) {
-      console.log(shapePoint);
       p.noFill();
       p.stroke(shapePoint.color);
       p.strokeWeight(shapePoint.strokeWeight);

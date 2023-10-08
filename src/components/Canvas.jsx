@@ -7,6 +7,7 @@ import { ChromePicker } from "react-color";
 
 const Canvas = (props) => {
   const [tool, setTool] = useState("brushTool");
+  const [room, setRoom] = useState();
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
@@ -15,7 +16,6 @@ const Canvas = (props) => {
   const [strokeWeight, setStrokeWeight] = useState(3);
   let currentTool = null;
   let sketch = null;
-  let snapshot;
   // let snapshot;
 
   useEffect(() => {
@@ -23,7 +23,6 @@ const Canvas = (props) => {
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
-        console.log(freeShapes);
         socketListener(
           props.socket,
           p,
@@ -42,6 +41,7 @@ const Canvas = (props) => {
           circles,
           freeShapes,
           color,
+          room,
           strokeWeight,
           props.socket
         );
@@ -55,6 +55,7 @@ const Canvas = (props) => {
           color,
           strokeWeight
         );
+
         // mouseDragged
         p.mouseDragged = () => {
           currentTool.mouseDragged();
@@ -72,13 +73,11 @@ const Canvas = (props) => {
 
         //mouseDown
         p.mousePressed = () => {
-          snapshot = p.get();
           currentTool.mousePressed();
         };
 
         //mouseUp
         p.mouseReleased = () => {
-          console.log(snapshot);
           currentTool.mouseReleased();
         };
 
@@ -99,7 +98,7 @@ const Canvas = (props) => {
       sketch.remove();
       console.log("removed");
     };
-  }, [tool, color, strokeWeight]);
+  }, [tool, color, strokeWeight, room]);
 
   return (
     <div>
@@ -111,8 +110,23 @@ const Canvas = (props) => {
       />
       <input
         type="text"
+        placeholder="room"
+        onBlur={(e) => {
+          setRoom(e.target.value);
+        }}
+      ></input>
+      <button
+        onClick={() => {
+          if (props.socket) {
+            props.socket.emit("joinRequest", room);
+          }
+        }}
+      >
+        join
+      </button>
+      <input
+        type="text"
         placeholder="stroke weight"
-        // value={strokeWeight}
         onBlur={(e) => {
           setStrokeWeight(e.target.value);
         }}

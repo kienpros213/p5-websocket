@@ -69,5 +69,7 @@ export function socketListener(
       p.line(payload.startX, payload.startY, payload.endX, payload.endY);
     });
     socket.on("serverErasePush", (payload) => {});
+
+    //////////room//////////
   }
 }
