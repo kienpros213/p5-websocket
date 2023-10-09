@@ -23,6 +23,7 @@ const Canvas = (props) => {
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
+        // console.log("canvas", freeShapes);
         socketListener(
           props.socket,
           p,

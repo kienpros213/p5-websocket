@@ -37,9 +37,10 @@ function redrawCircle(p, circles) {
 }
 
 function redrawFreeShape(p, freeShapes) {
-  for (const freeShapeArrays of freeShapes.current) {
+  console.log("check", freeShapes);
+  for (const shape of freeShapes.current) {
     p.beginShape();
-    for (const shapePoint of freeShapeArrays) {
+    for (const shapePoint of shape.freeShape) {
       p.noFill();
       p.stroke(shapePoint.color);
       p.strokeWeight(shapePoint.strokeWeight);

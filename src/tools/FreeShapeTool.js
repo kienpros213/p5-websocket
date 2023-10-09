@@ -55,7 +55,7 @@ class FreeShapeTool extends BaseTool {
 
     if (this.p.keyCode == this.p.ENTER) {
       this.p.endShape(this.p.CLOSE);
-      this.freeShapes.current.push(this.shapeArray);
+      this.freeShapes.current.push(payload);
 
       if (this.socket) {
         this.socket.emit("clientStopFreeShape", payload);
