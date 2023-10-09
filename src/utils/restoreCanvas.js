@@ -9,10 +9,18 @@ export function restoreCanvas(
   circlesRef,
   freeShapesRef
 ) {
-  restoreRectangle(p, rectangles, rectanglesRef);
-  restoreCircle(p, circles, circlesRef);
-  restoreFreeShape(p, freeShapes, freeShapesRef);
-  restoreBrush(p, brushes, brushesRef);
+  if (rectangles != undefined) {
+    restoreRectangle(p, rectangles, rectanglesRef);
+  }
+  if (circles != undefined) {
+    restoreCircle(p, circles, circlesRef);
+  }
+  if (brushes != undefined) {
+    restoreBrush(p, brushes, brushesRef);
+  }
+  if (freeShapes != undefined) {
+    restoreFreeShape(p, freeShapes, freeShapesRef);
+  }
 }
 
 function restoreBrush(p, brushes, brushesRef) {
