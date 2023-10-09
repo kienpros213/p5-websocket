@@ -1,4 +1,5 @@
 import { redrawCanvas } from "./redrawFunction";
+import { restoreCanvas } from "./restoreCanvas";
 let shapeArray = [];
 
 export function socketListener(
@@ -71,5 +72,9 @@ export function socketListener(
     socket.on("serverErasePush", (payload) => {});
 
     //////////room//////////
+    socket.on("roomJoined", (payload) => {
+      console.log("welcome to room " + payload.room + "");
+      restoreCanvas(p, payload.brush, payload.rectangle, payload.circle);
+    });
   }
 }

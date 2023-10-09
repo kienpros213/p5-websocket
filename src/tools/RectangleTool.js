@@ -42,6 +42,7 @@ class RectangleTool extends BaseTool {
 
   mouseReleased() {
     const payload = {
+      tool: "rectangle",
       startX: this.startX,
       startY: this.startY,
       width: this.p.mouseX - this.startX,

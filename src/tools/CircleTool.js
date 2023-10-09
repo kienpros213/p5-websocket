@@ -22,6 +22,7 @@ class CircleTool extends BaseTool {
     );
 
     const payload = {
+      tool: "circle",
       startX: this.startX,
       startY: this.startY,
       radius: this.radius,
@@ -46,6 +47,7 @@ class CircleTool extends BaseTool {
 
   mouseReleased() {
     const payload = {
+      tool: "circle",
       startX: this.startX,
       startY: this.startY,
       radius: this.radius,

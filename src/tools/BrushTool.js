@@ -13,6 +13,7 @@ class BrushTool extends BaseTool {
   draw() {}
   mouseDragged() {
     const brushDrawData = {
+      tool: "brush",
       startX: this.p.mouseX,
       startY: this.p.mouseY,
       endX: this.p.pmouseX,
