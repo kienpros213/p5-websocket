@@ -34,7 +34,7 @@ export function socketListener(
 
     //////////circle//////////
     socket.on("serverCircleDraw", (payload) => {
-      p.background("pink");
+      // p.background("pink");
       redrawCanvas(p, brushes, rectangles, circles, freeShapes);
       p.noFill();
       p.circle(payload.startX, payload.startY, payload.radius);
@@ -73,6 +73,12 @@ export function socketListener(
 
     //////////room//////////
     socket.on("roomJoined", (payload) => {
+      console.log("clear");
+      brushes.current = [];
+      rectangles.current = [];
+      circles.current = [];
+      freeShapes.current = [];
+      p.background("pink");
       restoreCanvas(
         p,
         payload.brush,

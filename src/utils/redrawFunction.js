@@ -1,4 +1,5 @@
 export function redrawCanvas(p, brushes, rectangles, circles, freeShapes) {
+  console.log("redraw");
   redrawRectangle(p, rectangles);
   redrawCircle(p, circles);
   redrawFreeShape(p, freeShapes);
@@ -37,7 +38,6 @@ function redrawCircle(p, circles) {
 }
 
 function redrawFreeShape(p, freeShapes) {
-  console.log("check", freeShapes);
   for (const shape of freeShapes.current) {
     p.beginShape();
     for (const shapePoint of shape.freeShape) {
