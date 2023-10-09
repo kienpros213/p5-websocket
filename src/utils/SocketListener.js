@@ -74,7 +74,13 @@ export function socketListener(
     //////////room//////////
     socket.on("roomJoined", (payload) => {
       console.log("welcome to room " + payload.room + "");
-      restoreCanvas(p, payload.brush, payload.rectangle, payload.circle);
+      restoreCanvas(
+        p,
+        payload.brush,
+        payload.rectangle,
+        payload.circle,
+        payload.freeShape
+      );
     });
   }
 }

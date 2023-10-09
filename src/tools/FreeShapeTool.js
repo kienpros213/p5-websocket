@@ -28,6 +28,7 @@ class FreeShapeTool extends BaseTool {
 
   mousePressed() {
     const point = {
+      tool: "freeShape",
       startX: this.p.mouseX,
       startY: this.p.mouseY,
       color: this.color,
@@ -46,14 +47,20 @@ class FreeShapeTool extends BaseTool {
   mouseReleased() {}
 
   keyPressed() {
+    const payload = {
+      tool: "freeShape",
+      room: this.room,
+      freeShape: this.shapeArray,
+    };
+
     if (this.p.keyCode == this.p.ENTER) {
       this.p.endShape(this.p.CLOSE);
       this.freeShapes.current.push(this.shapeArray);
-      this.shapeArray = [];
 
       if (this.socket) {
-        this.socket.emit("clientStopFreeShape", { room: this.room });
+        this.socket.emit("clientStopFreeShape", payload);
       }
+      this.shapeArray = [];
     }
   }
 }
