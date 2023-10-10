@@ -1,50 +1,43 @@
-import { redrawCanvas } from "./redrawFunction";
-import { restoreCanvas } from "./restoreCanvas";
+import { redrawCanvas } from './redrawFunction';
+import { restoreCanvas } from './restoreCanvas';
 let shapeArray = [];
 
-export function socketListener(
-  socket,
-  p,
-  brushes,
-  rectangles,
-  circles,
-  freeShapes
-) {
+export function socketListener(socket, p, brushes, rectangles, circles, freeShapes) {
   if (socket) {
     //////////brush//////////
-    socket.on("serverBrushDraw", (payload) => {
+    socket.on('serverBrushDraw', (payload) => {
       brushes.current.push(payload);
       p.stroke(payload.color);
       p.strokeWeight(payload.strokeWeight);
       p.line(payload.startX, payload.startY, payload.endX, payload.endY);
     });
-    socket.on("serverPushBrush", (payload) => {});
+    socket.on('serverPushBrush', (payload) => {});
 
     //////////rectangle//////////
-    socket.on("serverRectDraw", (payload) => {
-      p.background("pink");
+    socket.on('serverRectDraw', (payload) => {
+      p.background('pink');
       redrawCanvas(p, brushes, rectangles, circles, freeShapes);
 
       p.noFill();
       p.rect(payload.startX, payload.startY, payload.width, payload.height);
     });
-    socket.on("serverPushRect", (payload) => {
+    socket.on('serverPushRect', (payload) => {
       rectangles.current.push(payload);
     });
 
     //////////circle//////////
-    socket.on("serverCircleDraw", (payload) => {
+    socket.on('serverCircleDraw', (payload) => {
       // p.background("pink");
       redrawCanvas(p, brushes, rectangles, circles, freeShapes);
       p.noFill();
       p.circle(payload.startX, payload.startY, payload.radius);
     });
-    socket.on("serverPushCircle", (payload) => {
+    socket.on('serverPushCircle', (payload) => {
       circles.current.push(payload);
     });
 
     //////////freeShape//////////
-    socket.on("serverFreeShapeDraw", (payload) => {
+    socket.on('serverFreeShapeDraw', (payload) => {
       shapeArray.push(payload);
       p.beginShape();
       p.stroke(payload.color);
@@ -56,29 +49,29 @@ export function socketListener(
       p.endShape();
     });
 
-    socket.on("serverStopFreeShape", () => {
+    socket.on('serverStopFreeShape', () => {
       freeShapes.current.push(shapeArray);
       p.endShape(p.CLOSE);
       shapeArray = [];
     });
 
     //////////erase//////////
-    socket.on("serverEraseDraw", (payload) => {
+    socket.on('serverEraseDraw', (payload) => {
       erases.current.push(payload);
-      p.stroke("pink");
+      p.stroke('pink');
       p.strokeWeight(payload.strokeWeight);
       p.line(payload.startX, payload.startY, payload.endX, payload.endY);
     });
-    socket.on("serverErasePush", (payload) => {});
+    socket.on('serverErasePush', (payload) => {});
 
     //////////room//////////
-    socket.on("roomJoined", (payload) => {
-      console.log("clear");
+    socket.on('roomJoined', (payload) => {
+      console.log('clear');
       brushes.current = [];
       rectangles.current = [];
       circles.current = [];
       freeShapes.current = [];
-      p.background("pink");
+      p.background('pink');
       restoreCanvas(
         p,
         payload.brush,

@@ -1,5 +1,5 @@
 export function redrawCanvas(p, brushes, rectangles, circles, freeShapes) {
-  console.log("redraw");
+  console.log('redraw');
   redrawRectangle(p, rectangles);
   redrawCircle(p, circles);
   redrawFreeShape(p, freeShapes);
@@ -19,12 +19,7 @@ function redrawRectangle(p, rectangles) {
     p.stroke(rectangle.color);
     p.strokeWeight(rectangle.strokeWeight);
     p.noFill();
-    p.rect(
-      rectangle.startX,
-      rectangle.startY,
-      rectangle.width,
-      rectangle.height
-    );
+    p.rect(rectangle.startX, rectangle.startY, rectangle.width, rectangle.height);
   }
 }
 

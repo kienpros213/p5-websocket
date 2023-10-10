@@ -1,4 +1,4 @@
-import { BaseTool } from "./BaseTool";
+import { BaseTool } from './BaseTool';
 
 class RectangleTool extends BaseTool {
   constructor(color, strokeWeight, room, rectangles, socket) {
@@ -24,15 +24,15 @@ class RectangleTool extends BaseTool {
       height: this.p.mouseY - this.startY,
       color: this.color,
       strokeWeight: this.strokeWeight,
-      room: this.room,
+      room: this.room
     };
-    this.p.background("pink");
+    this.p.background('pink');
     this.p.stroke(this.color);
     this.p.strokeWeight(this.strokeWeight);
     this.p.noFill();
     this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
     if (this.socket) {
-      this.socket.emit("clientRectDraw", payload);
+      this.socket.emit('clientRectDraw', payload);
     }
   }
   mousePressed() {
@@ -42,20 +42,20 @@ class RectangleTool extends BaseTool {
 
   mouseReleased() {
     const payload = {
-      tool: "rectangle",
+      tool: 'rectangle',
       startX: this.startX,
       startY: this.startY,
       width: this.p.mouseX - this.startX,
       height: this.p.mouseY - this.startY,
       color: this.color,
       strokeWeight: this.strokeWeight,
-      room: this.room,
+      room: this.room
     };
     this.width = this.p.mouseX - this.startX;
     this.height = this.p.mouseY - this.startY;
     this.rectangles.current.push(payload);
     if (this.socket) {
-      this.socket.emit("clientPushRect", payload);
+      this.socket.emit('clientPushRect', payload);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { BaseTool } from "./BaseTool";
+import { BaseTool } from './BaseTool';
 
 class CircleTool extends BaseTool {
   constructor(color, strokeWeight, room, circles, socket) {
@@ -16,27 +16,24 @@ class CircleTool extends BaseTool {
   draw() {}
 
   mouseDragged() {
-    this.radius = Math.sqrt(
-      Math.pow(this.startX - this.p.mouseX, 2) +
-        Math.pow(this.startY - this.p.mouseY, 2)
-    );
+    this.radius = Math.sqrt(Math.pow(this.startX - this.p.mouseX, 2) + Math.pow(this.startY - this.p.mouseY, 2));
 
     const payload = {
-      tool: "circle",
+      tool: 'circle',
       startX: this.startX,
       startY: this.startY,
       radius: this.radius,
-      room: this.room,
+      room: this.room
     };
 
     this.p.stroke(this.color);
     this.p.strokeWeight(this.strokeWeight);
-    this.p.background("pink");
+    this.p.background('pink');
     this.p.noFill();
     this.p.circle(payload.startX, payload.startY, payload.radius);
 
     if (this.socket) {
-      this.socket.emit("clientCircleDraw", payload);
+      this.socket.emit('clientCircleDraw', payload);
     }
   }
 
@@ -47,20 +44,20 @@ class CircleTool extends BaseTool {
 
   mouseReleased() {
     const payload = {
-      tool: "circle",
+      tool: 'circle',
       startX: this.startX,
       startY: this.startY,
       radius: this.radius,
       color: this.color,
       strokeWeight: this.strokeWeight,
-      room: this.room,
+      room: this.room
     };
     this.width = this.p.mouseX - this.startX;
     this.height = this.p.mouseY - this.startY;
     this.circles.current.push(payload);
 
     if (this.socket) {
-      this.socket.emit("clientPushCircle", payload);
+      this.socket.emit('clientPushCircle', payload);
     }
   }
 }

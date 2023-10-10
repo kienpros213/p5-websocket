@@ -1,4 +1,4 @@
-import { BaseTool } from "./BaseTool";
+import { BaseTool } from './BaseTool';
 
 class FreeShapeTool extends BaseTool {
   constructor(color, strokeWeight, room, freeShapes, socket) {
@@ -28,19 +28,19 @@ class FreeShapeTool extends BaseTool {
 
   mousePressed() {
     const point = {
-      tool: "freeShape",
+      tool: 'freeShape',
       startX: this.p.mouseX,
       startY: this.p.mouseY,
       color: this.color,
       strokeWeight: this.strokeWeight,
-      room: this.room,
+      room: this.room
     };
     this.startX = this.p.mouseX;
     this.startY = this.p.mouseY;
     this.shapeArray.push(point);
 
     if (this.socket) {
-      this.socket.emit("clientFreeShapeDraw", point);
+      this.socket.emit('clientFreeShapeDraw', point);
     }
   }
 
@@ -48,9 +48,9 @@ class FreeShapeTool extends BaseTool {
 
   keyPressed() {
     const payload = {
-      tool: "freeShape",
+      tool: 'freeShape',
       room: this.room,
-      freeShape: this.shapeArray,
+      freeShape: this.shapeArray
     };
 
     if (this.p.keyCode == this.p.ENTER) {
@@ -58,7 +58,7 @@ class FreeShapeTool extends BaseTool {
       this.freeShapes.current.push(payload);
 
       if (this.socket) {
-        this.socket.emit("clientStopFreeShape", payload);
+        this.socket.emit('clientStopFreeShape', payload);
       }
       this.shapeArray = [];
     }

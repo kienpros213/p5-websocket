@@ -38,12 +38,7 @@ function restoreRectangle(p, rectangles, rectanglesRef) {
     p.stroke(rectangle.color);
     p.strokeWeight(rectangle.strokeWeight);
     p.noFill();
-    p.rect(
-      rectangle.startX,
-      rectangle.startY,
-      rectangle.width,
-      rectangle.height
-    );
+    p.rect(rectangle.startX, rectangle.startY, rectangle.width, rectangle.height);
   }
 }
 
