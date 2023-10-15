@@ -1,12 +1,16 @@
 import { React, useEffect, useState } from 'react';
 import Canvas from './components/Canvas';
-import OnlineBox from './components/OnlineBox';
 import { io } from 'socket.io-client';
-import { HStack } from '@chakra-ui/react';
+import { Box, HStack } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
+import ToolBox from './components/ToolBox';
+import RoomPanel from './components/RoomPanel';
 
 const App = () => {
   const [socket, setSocket] = useState();
+  const [tool, setTool] = useState('brushTool');
+  const [room, setRoom] = useState();
+  const [color, setColor] = useState('#fffff');
   useEffect(() => {
     const initSocket = io('ws://localhost:3000');
     initSocket.on('connect', () => {
@@ -24,9 +28,22 @@ const App = () => {
 
   return (
     <ChakraProvider>
-      <HStack backgroundColor="#9EDDFF" w="100vw" h="100vh" display="flex" justifyContent="center" alignItems="center">
-        <Canvas socket={socket} />;
-        <OnlineBox socket={socket} />
+      <HStack backgroundColor="blue" spacing="0" align="flex-start" position="relative">
+        <Box pos="absolute">
+          <ToolBox tool={tool} setTool={setTool} color={color} setColor={setColor} />
+        </Box>
+        <Box pos="absolute" display="flex" right="0px" bottom="50vh">
+          <RoomPanel socket={socket} room={room} setRoom={setRoom} />
+        </Box>
+        <Canvas
+          socket={socket}
+          tool={tool}
+          setTool={setTool}
+          room={room}
+          setRoom={setRoom}
+          color={color}
+          setColor={setColor}
+        />
       </HStack>
     </ChakraProvider>
   );

@@ -22,7 +22,7 @@ function OnlineBox(props) {
   }, [props.socket]);
 
   return (
-    <Box backgroundColor="red" h="700px" w="400px">
+    <Box p="10px" h="auto" w="auto">
       {online.map((onlineUser, index) => {
         return (
           <div key={index}>
