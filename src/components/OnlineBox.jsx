@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
 
 function OnlineBox(props) {
   console.log(props.online);

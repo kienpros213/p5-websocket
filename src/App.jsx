@@ -28,18 +28,14 @@ const App = () => {
 
     initSocket.emit('connected');
 
-    initSocket.on('userConnected', (payload) => {
-      console.log('userConnected', payload);
-      const newOnline = payload;
-      setOnline((prevOnline) => [...prevOnline, newOnline]);
-    });
+    initSocket.on('userConnected', (payload) => setOnline(payload));
 
-    initSocket.on('userDisconnected', (payload) => {
-      console.log('userDisconnected', payload);
-      setOnline((prevOnline) => prevOnline.filter((user) => user !== payload));
-    });
+    initSocket.on('userDisconnected', (payload) => setOnline(payload));
 
     return () => {
+      initSocket.off('connect');
+      initSocket.off('error');
+      initSocket.off('disconnect');
       initSocket.off('userConnected');
       initSocket.off('userDisconnected');
     };
