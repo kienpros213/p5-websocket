@@ -1,5 +1,4 @@
 export function redrawCanvas(p, brushes, rectangles, circles, freeShapes) {
-  console.log('redraw');
   redrawRectangle(p, rectangles);
   redrawCircle(p, circles);
   redrawFreeShape(p, freeShapes);

@@ -54,7 +54,7 @@ function RoomPanel(props) {
 
           <DrawerHeader paddingBottom="auto">Online</DrawerHeader>
           <DrawerBody>
-            <OnlineBox socket={props.socket} />
+            <OnlineBox online={props.online} socket={props.socket} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

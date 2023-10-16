@@ -11,11 +11,12 @@ const App = () => {
   const [tool, setTool] = useState('brushTool');
   const [room, setRoom] = useState();
   const [color, setColor] = useState('#fffff');
+  const [online, setOnline] = useState([]);
   useEffect(() => {
     const initSocket = io('ws://localhost:3000');
+    setSocket(initSocket);
     initSocket.on('connect', () => {
       console.log('WebSocket connected');
-      setSocket(initSocket);
     });
     initSocket.on('error', (error) => {
       console.error('WebSocket error:', error);
@@ -24,6 +25,24 @@ const App = () => {
       console.log('WebSocket disconnected');
       setSocket(null);
     });
+
+    initSocket.emit('connected');
+
+    initSocket.on('userConnected', (payload) => {
+      console.log('userConnected', payload);
+      const newOnline = payload;
+      setOnline((prevOnline) => [...prevOnline, newOnline]);
+    });
+
+    initSocket.on('userDisconnected', (payload) => {
+      console.log('userDisconnected', payload);
+      setOnline((prevOnline) => prevOnline.filter((user) => user !== payload));
+    });
+
+    return () => {
+      initSocket.off('userConnected');
+      initSocket.off('userDisconnected');
+    };
   }, []);
 
   return (
@@ -33,7 +52,7 @@ const App = () => {
           <ToolBox tool={tool} setTool={setTool} color={color} setColor={setColor} />
         </Box>
         <Box pos="absolute" display="flex" right="0px" bottom="50vh">
-          <RoomPanel socket={socket} room={room} setRoom={setRoom} />
+          <RoomPanel socket={socket} room={room} setRoom={setRoom} online={online} />
         </Box>
         <Canvas
           socket={socket}

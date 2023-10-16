@@ -66,7 +66,6 @@ export function socketListener(socket, p, brushes, rectangles, circles, freeShap
 
     //////////room//////////
     socket.on('roomJoined', (payload) => {
-      console.log('clear');
       brushes.current = [];
       rectangles.current = [];
       circles.current = [];
