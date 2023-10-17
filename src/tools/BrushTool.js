@@ -22,6 +22,7 @@ class BrushTool extends BaseTool {
       strokeWeight: this.strokeWeight,
       room: this.room
     };
+    console.log('brushData', brushDrawData);
     this.p.background('pink');
     this.p.stroke(this.color);
     this.p.strokeWeight(this.strokeWeight);

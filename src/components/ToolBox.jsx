@@ -1,6 +1,7 @@
 import { VStack, IconButton, HStack } from '@chakra-ui/react';
 import { Square, Circle, Heptagon, Palette, Brush } from 'react-bootstrap-icons';
 import { ChromePicker } from 'react-color';
+import SliderThumbWithTooltip from './SliderThumbWithTooltip';
 
 function ToolBox(props) {
   return (
@@ -12,12 +13,15 @@ function ToolBox(props) {
         <IconButton onClick={() => props.setTool('freeShapeTool')} aria-label="freeShapeTool" icon={<Heptagon />} />
         <IconButton aria-label="Search database" icon={<Palette />} />
       </VStack>
-      <ChromePicker
-        color={props.color}
-        onChange={(e) => {
-          props.setColor(e.hex);
-        }}
-      />
+      <VStack>
+        <ChromePicker
+          color={props.color}
+          onChange={(e) => {
+            props.setColor(e.hex);
+          }}
+        />
+        <SliderThumbWithTooltip setStrokeWeight={props.setStrokeWeight} />
+      </VStack>
     </HStack>
   );
 }

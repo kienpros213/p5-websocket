@@ -12,6 +12,7 @@ const App = () => {
   const [room, setRoom] = useState();
   const [color, setColor] = useState('#fffff');
   const [online, setOnline] = useState([]);
+  const [strokeWeight, setStrokeWeight] = useState(5);
   useEffect(() => {
     const initSocket = io('ws://localhost:3000');
     setSocket(initSocket);
@@ -45,12 +46,13 @@ const App = () => {
     <ChakraProvider>
       <HStack backgroundColor="blue" spacing="0" align="flex-start" position="relative">
         <Box pos="absolute">
-          <ToolBox tool={tool} setTool={setTool} color={color} setColor={setColor} />
+          <ToolBox tool={tool} setTool={setTool} color={color} setColor={setColor} setStrokeWeight={setStrokeWeight} />
         </Box>
         <Box pos="absolute" display="flex" right="0px" bottom="50vh">
           <RoomPanel socket={socket} room={room} setRoom={setRoom} online={online} />
         </Box>
         <Canvas
+          strokeWeight={strokeWeight}
           socket={socket}
           tool={tool}
           setTool={setTool}

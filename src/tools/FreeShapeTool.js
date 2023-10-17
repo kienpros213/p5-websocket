@@ -28,6 +28,7 @@ class FreeShapeTool extends BaseTool {
   mouseMoved() {
     if (this.isDraw) {
       this.p.background('pink');
+      this.p.strokeWeight(this.strokeWeight);
       this.p.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
     }
   }

@@ -6,6 +6,7 @@ export function redrawCanvas(p, brushes, rectangles, circles, freeShapes) {
 }
 
 function redrawBrush(p, brushes) {
+  // console.log('strokeWeight', brushes);
   for (const brush of brushes.current) {
     p.stroke(brush.color);
     p.strokeWeight(brush.strokeWeight);

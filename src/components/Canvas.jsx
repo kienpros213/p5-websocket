@@ -6,7 +6,6 @@ import { socketListener } from '../utils/SocketListener';
 import { Box, HStack } from '@chakra-ui/react';
 
 const Canvas = (props) => {
-  const [strokeWeight, setStrokeWeight] = useState(3);
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
@@ -34,22 +33,24 @@ const Canvas = (props) => {
           freeShapes,
           props.color,
           props.room,
-          strokeWeight,
+          props.strokeWeight,
           props.socket
         );
         currentTool.setup(p);
-        redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color, strokeWeight);
+        redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color);
         // mouseDragged
         p.mouseDragged = () => {
           currentTool.mouseDragged();
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color, strokeWeight);
+          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color);
         };
         p.mouseMoved = () => {
           currentTool.mouseMoved();
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color, strokeWeight);
+          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color);
         };
         //mouseDown
-        p.mousePressed = () => currentTool.mousePressed();
+        p.mousePressed = () => {
+          currentTool.mousePressed();
+        };
         //mouseUp
         p.mouseReleased = () => currentTool.mouseReleased();
         //key
@@ -64,7 +65,7 @@ const Canvas = (props) => {
       sketch.remove();
       console.log('removed');
     };
-  }, [props.tool, props.color, strokeWeight, props.room]);
+  }, [props.tool, props.color, props.strokeWeight, props.room]);
 
   const clearCanvas = () => {
     sketch.background('pink');
