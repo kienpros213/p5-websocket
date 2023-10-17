@@ -44,6 +44,10 @@ const Canvas = (props) => {
           currentTool.mouseDragged();
           redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color, strokeWeight);
         };
+        p.mouseMoved = () => {
+          currentTool.mouseMoved();
+          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color, strokeWeight);
+        };
         //mouseDown
         p.mousePressed = () => currentTool.mousePressed();
         //mouseUp

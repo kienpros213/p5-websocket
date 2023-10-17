@@ -27,7 +27,7 @@ export function socketListener(socket, p, brushes, rectangles, circles, freeShap
 
     //////////circle//////////
     socket.on('serverCircleDraw', (payload) => {
-      // p.background("pink");
+      p.background('pink');
       redrawCanvas(p, brushes, rectangles, circles, freeShapes);
       p.noFill();
       p.circle(payload.startX, payload.startY, payload.radius);

@@ -7,6 +7,7 @@ class FreeShapeTool extends BaseTool {
     this.startX = 0;
     this.startY = 0;
     this.shapeArray = [];
+    this.isDraw = false;
   }
 
   setup(p) {
@@ -24,9 +25,15 @@ class FreeShapeTool extends BaseTool {
     this.p.endShape();
   }
 
-  mouseDragged() {}
+  mouseMoved() {
+    if (this.isDraw) {
+      this.p.background('pink');
+      this.p.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
+    }
+  }
 
   mousePressed() {
+    this.isDraw = true;
     const point = {
       tool: 'freeShape',
       startX: this.p.mouseX,
@@ -54,6 +61,7 @@ class FreeShapeTool extends BaseTool {
     };
 
     if (this.p.keyCode == this.p.ENTER) {
+      this.isDraw = false;
       this.p.endShape(this.p.CLOSE);
       this.freeShapes.current.push(payload);
 

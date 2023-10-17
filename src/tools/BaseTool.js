@@ -10,6 +10,8 @@ export class BaseTool {
 
   draw() {}
 
+  mouseMoved() {}
+
   mouseDragged() {}
 
   mousePressed() {}
