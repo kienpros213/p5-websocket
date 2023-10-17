@@ -10,12 +10,14 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
-  useDisclosure
+  useDisclosure,
+  useToast
 } from '@chakra-ui/react';
 import OnlineBox from './OnlineBox';
 
 function RoomPanel(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
   const btnRef = useRef();
 
   return (
@@ -42,6 +44,14 @@ function RoomPanel(props) {
               <Button
                 colorScheme="blue"
                 onClick={() => {
+                  onClose();
+                  toast({
+                    title: 'Room Joined',
+                    description: 'Welcome to Room ' + props.room + '',
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true
+                  });
                   if (props.socket) {
                     props.socket.emit('joinRequest', props.room);
                   }
