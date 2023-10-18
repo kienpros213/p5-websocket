@@ -1,46 +1,46 @@
-export function redrawCanvas(p, brushes, rectangles, circles, freeShapes) {
-  redrawRectangle(p, rectangles);
-  redrawCircle(p, circles);
-  redrawFreeShape(p, freeShapes);
-  redrawBrush(p, brushes);
+export function redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer) {
+  redrawRectangle(frameBuffer, rectangles);
+  redrawCircle(frameBuffer, circles);
+  redrawFreeShape(frameBuffer, freeShapes, p);
+  redrawBrush(frameBuffer, brushes);
 }
 
-function redrawBrush(p, brushes) {
-  // console.log('strokeWeight', brushes);
+function redrawBrush(frameBuffer, brushes) {
   for (const brush of brushes.current) {
-    p.stroke(brush.color);
-    p.strokeWeight(brush.strokeWeight);
-    p.line(brush.startX, brush.startY, brush.endX, brush.endY);
+    frameBuffer.stroke(brush.color);
+    frameBuffer.strokeWeight(brush.strokeWeight);
+    frameBuffer.line(brush.startX, brush.startY, brush.endX, brush.endY);
   }
 }
 
-function redrawRectangle(p, rectangles) {
+function redrawRectangle(frameBuffer, rectangles) {
   for (const rectangle of rectangles.current) {
-    p.stroke(rectangle.color);
-    p.strokeWeight(rectangle.strokeWeight);
-    p.noFill();
-    p.rect(rectangle.startX, rectangle.startY, rectangle.width, rectangle.height);
+    frameBuffer.stroke(rectangle.color);
+    frameBuffer.strokeWeight(rectangle.strokeWeight);
+    frameBuffer.noFill();
+    frameBuffer.rect(rectangle.startX, rectangle.startY, rectangle.width, rectangle.height);
   }
 }
 
-function redrawCircle(p, circles) {
+function redrawCircle(frameBuffer, circles) {
   for (const circle of circles.current) {
-    p.stroke(circle.color);
-    p.strokeWeight(circle.strokeWeight);
-    p.noFill();
-    p.circle(circle.startX, circle.startY, circle.radius);
+    frameBuffer.stroke(circle.color);
+    frameBuffer.strokeWeight(circle.strokeWeight);
+    frameBuffer.noFill();
+    frameBuffer.circle(circle.startX, circle.startY, circle.radius);
   }
 }
 
-function redrawFreeShape(p, freeShapes) {
+function redrawFreeShape(frameBuffer, freeShapes, p) {
+  console.log(freeShapes);
   for (const shape of freeShapes.current) {
-    p.beginShape();
+    frameBuffer.beginShape();
     for (const shapePoint of shape.freeShape) {
-      p.noFill();
-      p.stroke(shapePoint.color);
-      p.strokeWeight(shapePoint.strokeWeight);
-      p.vertex(shapePoint.startX, shapePoint.startY);
+      frameBuffer.noFill();
+      frameBuffer.stroke(shapePoint.color);
+      frameBuffer.strokeWeight(shapePoint.strokeWeight);
+      frameBuffer.vertex(shapePoint.startX, shapePoint.startY);
     }
-    p.endShape(p.CLOSE);
+    frameBuffer.endShape(p.CLOSE);
   }
 }

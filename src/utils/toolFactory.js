@@ -3,15 +3,26 @@ import CircleTool from '../tools/CircleTool';
 import RectangleTool from '../tools/RectangleTool';
 import FreeShapeTool from '../tools/FreeShapeTool';
 
-export function switchTool(tool, brushes, rectangles, circles, freeShapes, color, room, strokeWeight, socket) {
+export function switchTool(
+  tool,
+  brushes,
+  rectangles,
+  circles,
+  freeShapes,
+  color,
+  room,
+  strokeWeight,
+  socket,
+  frameBuffer
+) {
   switch (tool) {
     case 'brushTool':
-      return new BrushTool(color, strokeWeight, room, brushes, socket);
+      return new BrushTool(color, strokeWeight, room, brushes, socket, frameBuffer);
     case 'rectTool':
-      return new RectangleTool(color, strokeWeight, room, rectangles, socket);
+      return new RectangleTool(color, strokeWeight, room, rectangles, socket, frameBuffer);
     case 'circleTool':
-      return new CircleTool(color, strokeWeight, room, circles, socket);
+      return new CircleTool(color, strokeWeight, room, circles, socket, frameBuffer);
     case 'freeShapeTool':
-      return new FreeShapeTool(color, strokeWeight, room, freeShapes, socket);
+      return new FreeShapeTool(color, strokeWeight, room, freeShapes, socket, frameBuffer);
   }
 }

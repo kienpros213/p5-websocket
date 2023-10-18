@@ -1,8 +1,8 @@
 import { BaseTool } from './BaseTool';
 
 class RectangleTool extends BaseTool {
-  constructor(color, strokeWeight, room, rectangles, socket) {
-    super(color, strokeWeight, room, socket);
+  constructor(color, strokeWeight, room, rectangles, socket, frameBuffer) {
+    super(color, strokeWeight, room, socket, frameBuffer);
     this.rectangles = rectangles;
     this.startX = 0;
     this.startY = 0;
@@ -26,11 +26,11 @@ class RectangleTool extends BaseTool {
       strokeWeight: this.strokeWeight,
       room: this.room
     };
-    this.p.background('pink');
-    this.p.stroke(this.color);
-    this.p.strokeWeight(this.strokeWeight);
-    this.p.noFill();
-    this.p.rect(payload.startX, payload.startY, payload.width, payload.height);
+    this.frameBuffer.background(51);
+    this.frameBuffer.stroke(this.color);
+    this.frameBuffer.strokeWeight(this.strokeWeight);
+    this.frameBuffer.noFill();
+    this.frameBuffer.rect(payload.startX, payload.startY, payload.width, payload.height);
     if (this.socket) {
       this.socket.emit('clientRectDraw', payload);
     }

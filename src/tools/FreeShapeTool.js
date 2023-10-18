@@ -1,8 +1,8 @@
 import { BaseTool } from './BaseTool';
 
 class FreeShapeTool extends BaseTool {
-  constructor(color, strokeWeight, room, freeShapes, socket) {
-    super(color, strokeWeight, room, socket);
+  constructor(color, strokeWeight, room, freeShapes, socket, frameBuffer) {
+    super(color, strokeWeight, room, socket, frameBuffer);
     this.freeShapes = freeShapes;
     this.startX = 0;
     this.startY = 0;
@@ -15,21 +15,21 @@ class FreeShapeTool extends BaseTool {
   }
 
   draw() {
-    this.p.beginShape();
-    this.p.stroke(this.color);
-    this.p.strokeWeight(this.strokeWeight);
-    this.p.noFill();
+    this.frameBuffer.beginShape();
+    this.frameBuffer.stroke(this.color);
+    this.frameBuffer.strokeWeight(this.strokeWeight);
+    this.frameBuffer.noFill();
     for (const shapePoint of this.shapeArray) {
-      this.p.vertex(shapePoint.startX, shapePoint.startY);
+      this.frameBuffer.vertex(shapePoint.startX, shapePoint.startY);
     }
-    this.p.endShape();
+    this.frameBuffer.endShape();
   }
 
   mouseMoved() {
     if (this.isDraw) {
-      this.p.background('pink');
-      this.p.strokeWeight(this.strokeWeight);
-      this.p.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
+      this.frameBuffer.background(51);
+      this.frameBuffer.strokeWeight(this.strokeWeight);
+      this.frameBuffer.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
     }
   }
 
@@ -47,6 +47,7 @@ class FreeShapeTool extends BaseTool {
     this.startY = this.p.mouseY;
     this.shapeArray.push(point);
 
+    console.log(this.shapeArray);
     if (this.socket) {
       this.socket.emit('clientFreeShapeDraw', point);
     }
@@ -55,6 +56,7 @@ class FreeShapeTool extends BaseTool {
   mouseReleased() {}
 
   keyPressed() {
+    console.log('key pressed');
     const payload = {
       tool: 'freeShape',
       room: this.room,
@@ -63,7 +65,7 @@ class FreeShapeTool extends BaseTool {
 
     if (this.p.keyCode == this.p.ENTER) {
       this.isDraw = false;
-      this.p.endShape(this.p.CLOSE);
+      this.frameBuffer.endShape(this.p.CLOSE);
       this.freeShapes.current.push(payload);
 
       if (this.socket) {
@@ -71,6 +73,8 @@ class FreeShapeTool extends BaseTool {
       }
       this.shapeArray = [];
     }
+
+    console.log(this.freeShapes);
   }
 }
 

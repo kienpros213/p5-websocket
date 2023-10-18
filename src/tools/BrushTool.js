@@ -1,8 +1,8 @@
 import { BaseTool } from './BaseTool';
 
 class BrushTool extends BaseTool {
-  constructor(color, strokeWeight, room, brushes, socket) {
-    super(color, strokeWeight, room, socket);
+  constructor(color, strokeWeight, room, brushes, socket, frameBuffer) {
+    super(color, strokeWeight, room, socket, frameBuffer);
     this.brushes = brushes;
   }
 
@@ -22,11 +22,10 @@ class BrushTool extends BaseTool {
       strokeWeight: this.strokeWeight,
       room: this.room
     };
-    console.log('brushData', brushDrawData);
-    this.p.background('pink');
-    this.p.stroke(this.color);
-    this.p.strokeWeight(this.strokeWeight);
-    this.p.line(brushDrawData.startX, brushDrawData.startY, brushDrawData.endX, brushDrawData.endY);
+    // this.frameBuffer.background(51);
+    this.frameBuffer.stroke(this.color);
+    this.frameBuffer.strokeWeight(this.strokeWeight);
+    this.frameBuffer.line(brushDrawData.startX, brushDrawData.startY, brushDrawData.endX, brushDrawData.endY);
 
     this.brushes.current.push(brushDrawData);
 

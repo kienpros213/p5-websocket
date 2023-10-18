@@ -1,5 +1,6 @@
 import { React, useEffect, useState } from 'react';
 import Canvas from './components/Canvas';
+import TestCanvas from './components/TestCanvas';
 import { io } from 'socket.io-client';
 import { Box, HStack } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
@@ -51,7 +52,7 @@ const App = () => {
         <Box pos="absolute" display="flex" right="0px" bottom="50vh">
           <RoomPanel socket={socket} room={room} setRoom={setRoom} online={online} />
         </Box>
-        <Canvas
+        <TestCanvas
           strokeWeight={strokeWeight}
           socket={socket}
           tool={tool}

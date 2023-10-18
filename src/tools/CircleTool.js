@@ -1,8 +1,8 @@
 import { BaseTool } from './BaseTool';
 
 class CircleTool extends BaseTool {
-  constructor(color, strokeWeight, room, circles, socket) {
-    super(color, strokeWeight, room, socket);
+  constructor(color, strokeWeight, room, circles, socket, frameBuffer) {
+    super(color, strokeWeight, room, socket, frameBuffer);
     this.circles = circles;
     this.startX = 0;
     this.startY = 0;
@@ -26,11 +26,11 @@ class CircleTool extends BaseTool {
       room: this.room
     };
 
-    this.p.stroke(this.color);
-    this.p.strokeWeight(this.strokeWeight);
-    this.p.background('pink');
-    this.p.noFill();
-    this.p.circle(payload.startX, payload.startY, payload.radius);
+    this.frameBuffer.stroke(this.color);
+    this.frameBuffer.strokeWeight(this.strokeWeight);
+    this.frameBuffer.background(51);
+    this.frameBuffer.noFill();
+    this.frameBuffer.circle(payload.startX, payload.startY, payload.radius);
 
     if (this.socket) {
       this.socket.emit('clientCircleDraw', payload);
