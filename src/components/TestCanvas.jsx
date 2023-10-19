@@ -31,6 +31,7 @@ const TestCanvas = (props) => {
         const canvas = p.createCanvas(windowWidth, windowHeight);
         canvas.parent(canvasContainer);
         p.background(51);
+        console.log('redraw');
         redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
         //init factory
         currentTool = switchTool(

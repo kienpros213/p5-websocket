@@ -32,7 +32,6 @@ function redrawCircle(frameBuffer, circles) {
 }
 
 function redrawFreeShape(frameBuffer, freeShapes, p) {
-  console.log(freeShapes);
   for (const shape of freeShapes.current) {
     frameBuffer.beginShape();
     for (const shapePoint of shape.freeShape) {
