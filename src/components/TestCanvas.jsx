@@ -3,7 +3,7 @@ import p5 from 'p5';
 import { switchTool } from '../utils/toolFactory';
 import { redrawCanvas } from '../utils/redrawFunction';
 import { socketListener } from '../utils/SocketListener';
-import { Box, Button, HStack } from '@chakra-ui/react';
+import { Box, HStack } from '@chakra-ui/react';
 
 const TestCanvas = (props) => {
   let rectangles = useRef([]);
@@ -15,7 +15,6 @@ const TestCanvas = (props) => {
   let frameBuffer;
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
-  let startX, startY;
   // let snapshot;
 
   useEffect(() => {
@@ -23,15 +22,16 @@ const TestCanvas = (props) => {
     sketch = new p5((p) => {
       //canvas setup
       p.setup = () => {
+        //init frameBuffer
+        frameBuffer = p.createGraphics(windowWidth, windowHeight);
+        frameBuffer.background(51);
         //init socket listener
-        socketListener(props.socket, p, brushes, rectangles, circles, freeShapes);
+        socketListener(props.socket, p, brushes, rectangles, circles, freeShapes, frameBuffer);
         //init canvas
         const canvas = p.createCanvas(windowWidth, windowHeight);
         canvas.parent(canvasContainer);
         p.background(51);
-        //init frameBuffer
-        frameBuffer = p.createGraphics(windowWidth, windowHeight);
-        frameBuffer.background(51);
+        redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
         //init factory
         currentTool = switchTool(
           props.tool,
@@ -46,7 +46,6 @@ const TestCanvas = (props) => {
           frameBuffer
         );
         currentTool.setup(p);
-        redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
 
         //event listener
         p.mouseDragged = () => {
@@ -55,8 +54,8 @@ const TestCanvas = (props) => {
         };
         p.mouseMoved = () => {
           currentTool.mouseMoved();
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
-          if (props.tool == 'freeShape') {
+          if (props.tool == 'freeShapeTool') {
+            redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
           }
         };
         //mouseDown
@@ -65,11 +64,11 @@ const TestCanvas = (props) => {
         p.mouseReleased = () => currentTool.mouseReleased();
         //key
         p.keyPressed = () => currentTool.keyPressed();
-
-        p.frameRate(120);
+        p.frameRate(60);
       };
 
       p.draw = () => {
+        currentTool.draw();
         p.image(frameBuffer, 0, 0);
       };
     });

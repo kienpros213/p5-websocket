@@ -22,7 +22,7 @@ class BrushTool extends BaseTool {
       strokeWeight: this.strokeWeight,
       room: this.room
     };
-    // this.frameBuffer.background(51);
+    this.frameBuffer.background(51);
     this.frameBuffer.stroke(this.color);
     this.frameBuffer.strokeWeight(this.strokeWeight);
     this.frameBuffer.line(brushDrawData.startX, brushDrawData.startY, brushDrawData.endX, brushDrawData.endY);
