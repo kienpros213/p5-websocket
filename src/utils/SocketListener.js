@@ -3,7 +3,16 @@ import { restoreCanvas } from './restoreCanvas';
 let shapeArray = [];
 
 export function socketListener(socket, p, brushes, rectangles, circles, freeShapes, frameBuffer) {
+  console.log('socket mounted');
   if (socket) {
+    socket.on('serverMouseLocation', (payload) => {
+      console.log(payload);
+      frameBuffer.background(51);
+      frameBuffer.stroke(255);
+      frameBuffer.noFill();
+      frameBuffer.circle(payload.mouseX, payload.mouseY, 20, 20);
+      redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
+    });
     //////////brush//////////
     socket.on('serverBrushDraw', (payload) => {
       brushes.current.push(payload);
@@ -15,23 +24,27 @@ export function socketListener(socket, p, brushes, rectangles, circles, freeShap
 
     //////////rectangle//////////
     socket.on('serverRectDraw', (payload) => {
-      frameBuffer.background(51);
-      redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
-      frameBuffer.noFill();
-      frameBuffer.rect(payload.startX, payload.startY, payload.width, payload.height);
+      // frameBuffer.background(51);
+      // redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
+      // frameBuffer.noFill();
+      // frameBuffer.rect(payload.startX, payload.startY, payload.width, payload.height);
     });
     socket.on('serverPushRect', (payload) => {
       rectangles.current.push(payload);
+      frameBuffer.noFill();
+      frameBuffer.rect(payload.startX, payload.startY, payload.width, payload.height);
     });
 
     //////////circle//////////
     socket.on('serverCircleDraw', (payload) => {
-      frameBuffer.background(51);
-      redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
-      frameBuffer.noFill();
-      frameBuffer.circle(payload.startX, payload.startY, payload.radius);
+      // frameBuffer.background(51);
+      // redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
+      // frameBuffer.noFill();
+      // frameBuffer.circle(payload.startX, payload.startY, payload.radius);
     });
     socket.on('serverPushCircle', (payload) => {
+      frameBuffer.noFill();
+      frameBuffer.circle(payload.startX, payload.startY, payload.radius);
       circles.current.push(payload);
     });
 

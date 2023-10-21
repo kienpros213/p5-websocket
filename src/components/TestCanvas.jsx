@@ -24,7 +24,6 @@ const TestCanvas = (props) => {
       p.setup = () => {
         //init frameBuffer
         frameBuffer = p.createGraphics(windowWidth, windowHeight);
-        frameBuffer.background(51);
         //init socket listener
         socketListener(props.socket, p, brushes, rectangles, circles, freeShapes, frameBuffer);
         //init canvas
@@ -32,6 +31,7 @@ const TestCanvas = (props) => {
         canvas.parent(canvasContainer);
         p.background(51);
         console.log('redraw');
+        frameBuffer.background(51);
         redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
         //init factory
         currentTool = switchTool(
@@ -52,26 +52,31 @@ const TestCanvas = (props) => {
         p.mouseDragged = () => {
           currentTool.mouseDragged();
           redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
+          p.image(frameBuffer, 0, 0);
         };
         p.mouseMoved = () => {
           currentTool.mouseMoved();
-          if (props.tool == 'freeShapeTool') {
-            redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
+          // if (props.tool == 'freeShapeTool') {
+          //   redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
+          // }
+          if (props.socket) {
+            props.socket.emit('mouseLocation', { mouseX: p.mouseX, mouseY: p.mouseY, room: props.room });
           }
         };
         //mouseDown
-        p.mousePressed = () => currentTool.mousePressed();
+        p.mousePressed = () => {
+          currentTool.mousePressed();
+        };
         //mouseUp
         p.mouseReleased = () => currentTool.mouseReleased();
         //key
         p.keyPressed = () => currentTool.keyPressed();
-        p.frameRate(60);
-      };
 
-      p.draw = () => {
-        currentTool.draw();
+        p.frameRate(60);
         p.image(frameBuffer, 0, 0);
       };
+
+      p.draw = () => {};
     });
 
     return () => {
