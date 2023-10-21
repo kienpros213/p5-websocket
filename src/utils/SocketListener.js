@@ -5,14 +5,6 @@ let shapeArray = [];
 export function socketListener(socket, p, brushes, rectangles, circles, freeShapes, frameBuffer) {
   console.log('socket mounted');
   if (socket) {
-    socket.on('serverMouseLocation', (payload) => {
-      console.log(payload);
-      frameBuffer.background(51);
-      frameBuffer.stroke(255);
-      frameBuffer.noFill();
-      frameBuffer.circle(payload.mouseX, payload.mouseY, 20, 20);
-      redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer);
-    });
     //////////brush//////////
     socket.on('serverBrushDraw', (payload) => {
       brushes.current.push(payload);
@@ -31,6 +23,7 @@ export function socketListener(socket, p, brushes, rectangles, circles, freeShap
     });
     socket.on('serverPushRect', (payload) => {
       rectangles.current.push(payload);
+      frameBuffer.stroke(payload.color);
       frameBuffer.noFill();
       frameBuffer.rect(payload.startX, payload.startY, payload.width, payload.height);
     });
@@ -43,9 +36,10 @@ export function socketListener(socket, p, brushes, rectangles, circles, freeShap
       // frameBuffer.circle(payload.startX, payload.startY, payload.radius);
     });
     socket.on('serverPushCircle', (payload) => {
+      circles.current.push(payload);
+      frameBuffer.stroke(payload.color);
       frameBuffer.noFill();
       frameBuffer.circle(payload.startX, payload.startY, payload.radius);
-      circles.current.push(payload);
     });
 
     //////////freeShape//////////
@@ -92,7 +86,8 @@ export function socketListener(socket, p, brushes, rectangles, circles, freeShap
         brushes,
         rectangles,
         circles,
-        freeShapes
+        freeShapes,
+        frameBuffer
       );
     });
   }

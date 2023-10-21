@@ -7,61 +7,62 @@ export function restoreCanvas(
   brushesRef,
   rectanglesRef,
   circlesRef,
-  freeShapesRef
+  freeShapesRef,
+  frameBuffer
 ) {
   if (rectangles != undefined) {
-    restoreRectangle(p, rectangles, rectanglesRef);
+    restoreRectangle(frameBuffer, rectangles, rectanglesRef);
   }
   if (circles != undefined) {
-    restoreCircle(p, circles, circlesRef);
+    restoreCircle(frameBuffer, circles, circlesRef);
   }
   if (brushes != undefined) {
-    restoreBrush(p, brushes, brushesRef);
+    restoreBrush(frameBuffer, brushes, brushesRef);
   }
   if (freeShapes != undefined) {
-    restoreFreeShape(p, freeShapes, freeShapesRef);
+    restoreFreeShape(frameBuffer, freeShapes, freeShapesRef);
   }
 }
 
-function restoreBrush(p, brushes, brushesRef) {
+function restoreBrush(frameBuffer, brushes, brushesRef) {
   for (const brush of brushes) {
     brushesRef.current.push(brush);
-    p.stroke(brush.color);
-    p.strokeWeight(brush.strokeWeight);
-    p.line(brush.startX, brush.startY, brush.endX, brush.endY);
+    frameBuffer.stroke(brush.color);
+    frameBuffer.strokeWeight(brush.strokeWeight);
+    frameBuffer.line(brush.startX, brush.startY, brush.endX, brush.endY);
   }
 }
 
-function restoreRectangle(p, rectangles, rectanglesRef) {
+function restoreRectangle(frameBuffer, rectangles, rectanglesRef) {
   for (const rectangle of rectangles) {
     rectanglesRef.current.push(rectangle);
-    p.stroke(rectangle.color);
-    p.strokeWeight(rectangle.strokeWeight);
-    p.noFill();
-    p.rect(rectangle.startX, rectangle.startY, rectangle.width, rectangle.height);
+    frameBuffer.stroke(rectangle.color);
+    frameBuffer.strokeWeight(rectangle.strokeWeight);
+    frameBuffer.noFill();
+    frameBuffer.rect(rectangle.startX, rectangle.startY, rectangle.width, rectangle.height);
   }
 }
 
-function restoreCircle(p, circles, circlesRef) {
+function restoreCircle(frameBuffer, circles, circlesRef) {
   for (const circle of circles) {
     circlesRef.current.push(circle);
-    p.stroke(circle.color);
-    p.strokeWeight(circle.strokeWeight);
-    p.noFill();
-    p.circle(circle.startX, circle.startY, circle.radius);
+    frameBuffer.stroke(circle.color);
+    frameBuffer.strokeWeight(circle.strokeWeight);
+    frameBuffer.noFill();
+    frameBuffer.circle(circle.startX, circle.startY, circle.radius);
   }
 }
 
-function restoreFreeShape(p, freeShapes, freeShapesRef) {
+function restoreFreeShape(frameBuffer, freeShapes, freeShapesRef) {
   for (const shape of freeShapes) {
     freeShapesRef.current.push(shape);
-    p.beginShape();
+    frameBuffer.beginShape();
     for (const shapePoint of shape.freeShape) {
-      p.noFill();
-      p.stroke(shapePoint.color);
-      p.strokeWeight(shapePoint.strokeWeight);
-      p.vertex(shapePoint.startX, shapePoint.startY);
+      frameBuffer.noFill();
+      frameBuffer.stroke(shapePoint.color);
+      frameBuffer.strokeWeight(shapePoint.strokeWeight);
+      frameBuffer.vertex(shapePoint.startX, shapePoint.startY);
     }
-    p.endShape(p.CLOSE);
+    frameBuffer.endShape(frameBuffer.CLOSE);
   }
 }
