@@ -1,80 +1,27 @@
-import { useEffect, useRef } from 'react';
-import p5 from 'p5';
-import { switchTool } from '../utils/toolFactory';
-import { redrawCanvas } from '../utils/redrawFunction';
-import { socketListener } from '../utils/SocketListener';
-import { Box, HStack } from '@chakra-ui/react';
+import { useRef, useState } from 'react';
+import { Box } from '@chakra-ui/react';
 
-const Canvas = (props) => {
-  let rectangles = useRef([]);
-  let brushes = useRef([]);
-  let circles = useRef([]);
-  let freeShapes = useRef([]);
-  let currentTool = null;
-  let sketch = null;
+function Canvas() {
+  const canvasRef = useRef(null);
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
-  useEffect(() => {
-    const canvasContainer = document.getElementById('canvas-container');
-    sketch = new p5((p) => {
-      //canvas setup
-      p.setup = () => {
-        socketListener(props.socket, p, brushes, rectangles, circles, freeShapes);
-        const canvas = p.createCanvas(windowWidth, windowHeight);
-        canvas.parent(canvasContainer);
-        p.background('pink');
-        currentTool = switchTool(
-          props.tool,
-          brushes,
-          rectangles,
-          circles,
-          freeShapes,
-          props.color,
-          props.room,
-          props.strokeWeight,
-          props.socket
-        );
-        currentTool.setup(p);
-        redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color);
-        // mouseDragged
-        p.mouseDragged = () => {
-          currentTool.mouseDragged();
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color);
-        };
-        p.mouseMoved = () => {
-          currentTool.mouseMoved();
-          redrawCanvas(p, brushes, rectangles, circles, freeShapes, props.color);
-        };
-        //mouseDown
-        p.mousePressed = () => {
-          currentTool.mousePressed();
-        };
-        //mouseUp
-        p.mouseReleased = () => currentTool.mouseReleased();
-        //key
-        p.keyPressed = () => currentTool.keyPressed();
-        p.frameRate(60);
-      };
-
-      p.draw = () => currentTool.draw();
-    });
-
-    return () => {
-      sketch.remove();
-      console.log('removed');
-    };
-  }, [props.tool, props.color, props.strokeWeight, props.room]);
-
-  // const clearCanvas = () => {
-  //   sketch.background('pink');
-  // };
+  function setCanvasRef(ref) {
+    if (!ref) return;
+    canvasRef.current = ref;
+  }
 
   return (
-    <HStack backgroundColor="red">
-      <Box id="canvas-container"></Box>
-    </HStack>
+    <>
+      <Box>
+        <canvas width={windowWidth} height={windowHeight} style={canvasStyle} ref={setCanvasRef} />
+      </Box>
+    </>
   );
-};
+}
 
 export default Canvas;
+
+const canvasStyle = {
+  border: '1px solid black'
+};

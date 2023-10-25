@@ -5,7 +5,7 @@ import { redrawCanvas } from '../utils/redrawFunction';
 import { socketListener } from '../utils/SocketListener';
 import { Box, HStack } from '@chakra-ui/react';
 
-const TestCanvas = (props) => {
+const MouseCanvas = (props) => {
   let rectangles = useRef([]);
   let brushes = useRef([]);
   let circles = useRef([]);
@@ -84,4 +84,4 @@ const TestCanvas = (props) => {
   );
 };
 
-export default TestCanvas;
+export default MouseCanvas;
