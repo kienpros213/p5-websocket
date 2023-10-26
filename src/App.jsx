@@ -6,14 +6,16 @@ import { ChakraProvider } from '@chakra-ui/react';
 import ToolBox from './components/ToolBox';
 import RoomPanel from './components/RoomPanel';
 import Canvas from './components/Canvas';
+import Login from './components/Login';
 
 const App = () => {
   const [socket, setSocket] = useState();
   const [tool, setTool] = useState('brushTool');
-  const [room, setRoom] = useState();
   const [color, setColor] = useState('#fffff');
-  const [online, setOnline] = useState([]);
   const [strokeWeight, setStrokeWeight] = useState(5);
+  const [room, setRoom] = useState();
+  const [online, setOnline] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     const initSocket = io('ws://localhost:3000');
     setSocket(initSocket);
@@ -45,7 +47,8 @@ const App = () => {
 
   return (
     <ChakraProvider>
-      <HStack backgroundColor="blue" spacing="0" align="flex-start" position="relative">
+      <Login />
+      {/* <HStack backgroundColor="blue" spacing="0" align="flex-start" position="relative">
         <Box pos="absolute">
           <ToolBox tool={tool} setTool={setTool} color={color} setColor={setColor} setStrokeWeight={setStrokeWeight} />
         </Box>
@@ -63,7 +66,7 @@ const App = () => {
           color={color}
           setColor={setColor}
         />
-      </HStack>
+      </HStack> */}
     </ChakraProvider>
   );
 };
