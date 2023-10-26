@@ -1,0 +1,81 @@
+import { BaseTool } from './BaseTool';
+
+class FreeShapeTool extends BaseTool {
+  constructor(color, strokeWeight, room, freeShapes, socket, frameBuffer) {
+    super(color, strokeWeight, room, socket, frameBuffer);
+    this.freeShapes = freeShapes;
+    this.startX = 0;
+    this.startY = 0;
+    this.shapeArray = [];
+    this.isDraw = false;
+  }
+
+  setup(p) {
+    this.p = p;
+  }
+
+  draw() {
+    this.frameBuffer.beginShape();
+    this.frameBuffer.stroke(this.color);
+    this.frameBuffer.strokeWeight(this.strokeWeight);
+    this.frameBuffer.noFill();
+    for (const shapePoint of this.shapeArray) {
+      this.frameBuffer.vertex(shapePoint.startX, shapePoint.startY);
+    }
+    this.frameBuffer.endShape();
+  }
+
+  mouseMoved() {
+    if (this.isDraw) {
+      this.frameBuffer.background(51);
+      this.frameBuffer.strokeWeight(this.strokeWeight);
+      this.frameBuffer.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
+    }
+  }
+
+  mousePressed() {
+    this.isDraw = true;
+    const point = {
+      tool: 'freeShape',
+      startX: this.p.mouseX,
+      startY: this.p.mouseY,
+      color: this.color,
+      strokeWeight: this.strokeWeight,
+      room: this.room
+    };
+    this.startX = this.p.mouseX;
+    this.startY = this.p.mouseY;
+    this.shapeArray.push(point);
+
+    console.log(this.shapeArray);
+    if (this.socket) {
+      this.socket.emit('clientFreeShapeDraw', point);
+    }
+  }
+
+  mouseReleased() {}
+
+  keyPressed() {
+    console.log('key pressed');
+    const payload = {
+      tool: 'freeShape',
+      room: this.room,
+      freeShape: this.shapeArray
+    };
+
+    if (this.p.keyCode == this.p.ENTER) {
+      this.isDraw = false;
+      this.frameBuffer.endShape(this.p.CLOSE);
+      this.freeShapes.current.push(payload);
+
+      if (this.socket) {
+        this.socket.emit('clientStopFreeShape', payload);
+      }
+      this.shapeArray = [];
+    }
+
+    console.log(this.freeShapes);
+  }
+}
+
+export default FreeShapeTool;
