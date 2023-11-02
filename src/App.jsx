@@ -45,10 +45,16 @@ const App = () => {
     };
   }, []);
 
+  if (!isLoggedIn) {
+    return (
+      <ChakraProvider>
+        <Login setIsLoggedIn={setIsLoggedIn} />
+      </ChakraProvider>
+    );
+  }
   return (
     <ChakraProvider>
-      <Login />
-      {/* <HStack backgroundColor="blue" spacing="0" align="flex-start" position="relative">
+      <HStack backgroundColor="blue" spacing="0" align="flex-start" position="relative">
         <Box pos="absolute">
           <ToolBox tool={tool} setTool={setTool} color={color} setColor={setColor} setStrokeWeight={setStrokeWeight} />
         </Box>
@@ -66,7 +72,7 @@ const App = () => {
           color={color}
           setColor={setColor}
         />
-      </HStack> */}
+      </HStack>
     </ChakraProvider>
   );
 };

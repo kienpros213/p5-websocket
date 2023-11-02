@@ -2,17 +2,13 @@ import axios from 'axios';
 
 const endpoint = 'http://localhost:3030';
 
-export function SendLoginRequest(setIsLoggedIn) {
-  const username = document.getElementsByClassName('username');
-  const password = document.getElementsByClassName('password');
-  console.log(username[0].value, password[0].value);
-
+export function SendLoginRequest(username, password, setIsLoggedIn) {
   axios({
     method: 'post',
     url: '' + endpoint + '/auth/login',
     data: {
-      username: username[0].value,
-      password: password[0].value
+      username: username,
+      password: password
     }
   }).then(function (response) {
     if (response) {
