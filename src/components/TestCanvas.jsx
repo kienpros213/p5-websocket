@@ -69,6 +69,7 @@ const MouseCanvas = (props) => {
 
       p.draw = () => {
         p.image(frameBuffer, 0, 0);
+        currentTool.draw();
       };
     });
 

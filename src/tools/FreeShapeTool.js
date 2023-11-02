@@ -56,7 +56,6 @@ class FreeShapeTool extends BaseTool {
   mouseReleased() {}
 
   keyPressed() {
-    console.log('key pressed');
     const payload = {
       tool: 'freeShape',
       room: this.room,
@@ -73,8 +72,6 @@ class FreeShapeTool extends BaseTool {
       }
       this.shapeArray = [];
     }
-
-    console.log(this.freeShapes);
   }
 }
 
