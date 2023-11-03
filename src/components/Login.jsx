@@ -12,17 +12,31 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { SendLoginRequest } from '../utils/sendLoginRequest';
+import { SendRegisterRequest } from '../utils/sendRegisterRequest';
 import { useState } from 'react';
 
 function Login(props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [login, setLogin] = useState(true);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
   const { isOpen, onToggle } = useDisclosure();
 
   return (
     <Box backgroundColor="#0B2447" h="100vh" w="100vw" display="flex" justifyContent="center" alignItems="center">
       <FormControl backgroundColor="#19376D" h="auto" w="15%" borderRadius="10px" p="20px">
+        <Collapse in={isOpen} animateOpacity>
+          <FormLabel color="#A5D7E8">Email</FormLabel>
+          <Input
+            id="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+            backgroundColor="#A5D7E8"
+            type="email"
+          />
+        </Collapse>
         <FormLabel color="#A5D7E8">Username</FormLabel>
         <Input
           id="username"
@@ -46,10 +60,10 @@ function Login(props) {
         <Collapse in={isOpen} animateOpacity>
           <FormLabel color="#A5D7E8">Confirm Password</FormLabel>
           <Input
-            id="retype-password"
-            value={password}
+            id="confirm-password"
+            value={confirmPassword}
             onChange={(e) => {
-              setPassword(e.target.value);
+              setConfirmPassword(e.target.value);
             }}
             backgroundColor="#A5D7E8"
             type="password"
@@ -58,7 +72,11 @@ function Login(props) {
         <HStack mt={4}>
           <Button
             onClick={() => {
-              SendLoginRequest(username, password, props.setIsLoggedIn);
+              if (!isOpen) {
+                SendLoginRequest(username, password, props.setIsLoggedIn);
+              } else {
+                SendRegisterRequest(username, password, email);
+              }
             }}
           >
             Login

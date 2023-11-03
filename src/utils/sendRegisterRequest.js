@@ -2,18 +2,18 @@ import axios from 'axios';
 
 const endpoint = 'http://localhost:3000';
 
-export function SendLoginRequest(username, password, setIsLoggedIn) {
+export function SendRegisterRequest(username, password, email) {
   axios({
     method: 'post',
-    url: '' + endpoint + '/auth/login',
+    url: '' + endpoint + '/user/createuser',
     data: {
       username: username,
-      password: password
+      password: password,
+      email: email
     }
   }).then(function (response) {
     if (response) {
-      console.log(response.data.access_token);
-      setIsLoggedIn(true);
+      console.log(response);
     }
     return;
   });
