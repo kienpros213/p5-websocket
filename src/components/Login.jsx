@@ -14,12 +14,16 @@ import {
 import { SendLoginRequest } from '../utils/sendLoginRequest';
 import { SendRegisterRequest } from '../utils/sendRegisterRequest';
 import { useState } from 'react';
+import { emailValidate } from '../utils/emailValidation';
+import { passwordValidate } from '../utils/passwordValidation';
 
 function Login(props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const { isOpen, onToggle } = useDisclosure();
 
   return (
@@ -33,9 +37,13 @@ function Login(props) {
             onChange={(e) => {
               setEmail(e.target.value);
             }}
+            onBlur={() => {
+              emailValidate(email, setEmailError);
+            }}
             backgroundColor="#A5D7E8"
             type="email"
           />
+          {emailError && <FormHelperText color="red">{emailError}</FormHelperText>}
         </Collapse>
         <FormLabel color="#A5D7E8">Username</FormLabel>
         <Input
@@ -45,7 +53,6 @@ function Login(props) {
             setUsername(e.target.value);
           }}
           backgroundColor="#A5D7E8"
-          type="email"
         />
         <FormLabel color="#A5D7E8">Password</FormLabel>
         <Input
@@ -65,10 +72,14 @@ function Login(props) {
             onChange={(e) => {
               setConfirmPassword(e.target.value);
             }}
+            onBlur={() => {
+              passwordValidate(password, confirmPassword, setPasswordError);
+            }}
             backgroundColor="#A5D7E8"
             type="password"
           />
         </Collapse>
+        {passwordError && <FormHelperText color="red">{passwordError}</FormHelperText>}
         <HStack mt={4}>
           <Button
             onClick={() => {
