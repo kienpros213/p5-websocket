@@ -1,20 +1,8 @@
-import axios from 'axios';
-
-const endpoint = 'http://localhost:3000';
+import { instance } from '../API/configaxios';
 
 export function SendRegisterRequest(username, password, email) {
-  axios({
-    method: 'post',
-    url: '' + endpoint + '/user/createuser',
-    data: {
-      username: username,
-      password: password,
-      email: email
-    }
-  }).then(function (response) {
-    if (response) {
-      console.log(response);
-    }
-    return;
-  });
+  return instance
+    .post(`/user/createuser`, { username: username, password: password, email: email })
+    .then((response) => response)
+    .catch((error) => error.response.data);
 }
