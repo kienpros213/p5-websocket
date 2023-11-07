@@ -6,6 +6,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import ToolBox from './components/ToolBox';
 import RoomPanel from './components/RoomPanel';
 import Login from './components/Login';
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   const [socket, setSocket] = useState();
@@ -49,6 +50,18 @@ const App = () => {
     return (
       <ChakraProvider>
         <Login setIsLoggedIn={setIsLoggedIn} />
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </ChakraProvider>
     );
   }

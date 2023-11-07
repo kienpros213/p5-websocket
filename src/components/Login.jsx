@@ -16,6 +16,7 @@ import { SendRegisterRequest } from '../utils/sendRegisterRequest';
 import { useState } from 'react';
 import { emailValidate } from '../utils/emailValidation';
 import { passwordValidate } from '../utils/passwordValidation';
+import { toast } from 'react-toastify';
 
 function Login(props) {
   const [username, setUsername] = useState('');
@@ -82,15 +83,39 @@ function Login(props) {
         {passwordError && <FormHelperText color="red">{passwordError}</FormHelperText>}
         <HStack mt={4}>
           <Button
-            onClick={() => {
+            onClick={async () => {
               if (!isOpen) {
                 SendLoginRequest(username, password, props.setIsLoggedIn);
               } else {
-                SendRegisterRequest(username, password, email);
+                const registerResponse = await SendRegisterRequest(username, password, email);
+                if (registerResponse.error) {
+                  console.log(registerResponse);
+                  toast.error('' + registerResponse.error + '', {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: 'light'
+                  });
+                } else if (registerResponse.success) {
+                  toast.success('' + registerResponse.success + '', {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: 'light'
+                  });
+                }
               }
             }}
           >
-            Login
+            {isOpen ? 'Register' : 'Login'}
           </Button>
           <Text color="#A5D7E8">
             Don't have an account ?
