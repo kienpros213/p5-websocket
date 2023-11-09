@@ -89,7 +89,6 @@ function Login(props) {
               } else {
                 const registerResponse = await SendRegisterRequest(username, password, email);
                 if (registerResponse.error) {
-                  console.log(registerResponse);
                   toast.error('' + registerResponse.error + '', {
                     position: 'top-center',
                     autoClose: 5000,
