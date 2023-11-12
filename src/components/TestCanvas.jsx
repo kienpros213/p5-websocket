@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import p5 from 'p5';
 import { switchTool } from '../utils/toolFactory';
 import { redrawCanvas } from '../utils/redrawFunction';
