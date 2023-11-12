@@ -1,4 +1,3 @@
-import { redrawCanvas } from './redrawFunction';
 import { restoreCanvas } from './restoreCanvas';
 let shapeArray = [];
 
