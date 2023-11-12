@@ -26,11 +26,11 @@ class FreeShapeTool extends BaseTool {
   }
 
   mouseMoved() {
-    if (this.isDraw) {
-      this.frameBuffer.background(51);
-      this.frameBuffer.strokeWeight(this.strokeWeight);
-      this.frameBuffer.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
-    }
+    // if (this.isDraw) {
+    //   this.frameBuffer.background(51);
+    //   this.frameBuffer.strokeWeight(this.strokeWeight);
+    //   this.frameBuffer.line(this.startX, this.startY, this.p.mouseX, this.p.mouseY);
+    // }
   }
 
   mousePressed() {
@@ -56,7 +56,6 @@ class FreeShapeTool extends BaseTool {
   mouseReleased() {}
 
   keyPressed() {
-    console.log('key pressed');
     const payload = {
       tool: 'freeShape',
       room: this.room,
@@ -73,8 +72,6 @@ class FreeShapeTool extends BaseTool {
       }
       this.shapeArray = [];
     }
-
-    console.log(this.freeShapes);
   }
 }
 
