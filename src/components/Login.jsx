@@ -19,7 +19,6 @@ import { passwordValidate } from '../utils/passwordValidation';
 import { toast } from 'react-toastify';
 
 function Login(props) {
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -49,9 +48,9 @@ function Login(props) {
         <FormLabel color="#A5D7E8">Username</FormLabel>
         <Input
           id="username"
-          value={username}
+          value={props.username}
           onChange={(e) => {
-            setUsername(e.target.value);
+            props.setUsername(e.target.value);
           }}
           backgroundColor="#A5D7E8"
         />
@@ -85,9 +84,9 @@ function Login(props) {
           <Button
             onClick={async () => {
               if (!isOpen) {
-                SendLoginRequest(username, password, props.setIsLoggedIn);
+                SendLoginRequest(props.username, password, props.setIsLoggedIn);
               } else {
-                const registerResponse = await SendRegisterRequest(username, password, email);
+                const registerResponse = await SendRegisterRequest(props.username, password, email);
                 if (registerResponse.error) {
                   toast.error('' + registerResponse.error + '', {
                     position: 'top-center',

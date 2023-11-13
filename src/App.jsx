@@ -10,43 +10,47 @@ import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   const [socket, setSocket] = useState();
+  const [room, setRoom] = useState();
+  const [online, setOnline] = useState([]);
   const [tool, setTool] = useState('brushTool');
   const [color, setColor] = useState('#fffff');
   const [strokeWeight, setStrokeWeight] = useState(5);
-  const [room, setRoom] = useState();
-  const [online, setOnline] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
   useEffect(() => {
-    const initSocket = io('ws://localhost:3000');
-    setSocket(initSocket);
-    initSocket.on('connect', () => {
-      console.log('WebSocket connected');
-    });
-    initSocket.on('error', (error) => {
-      console.error('WebSocket error:', error);
-    });
-    initSocket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
-      setSocket(null);
-    });
+    if (isLoggedIn) {
+      const initSocket = io('ws://localhost:3000');
+      setSocket(initSocket);
+      initSocket.on('connect', () => {
+        console.log('WebSocket connected');
+      });
+      initSocket.on('error', (error) => {
+        console.error('WebSocket error:', error);
+      });
+      initSocket.on('disconnect', () => {
+        console.log('WebSocket disconnected');
+        setSocket(null);
+      });
 
-    initSocket.emit('connected');
-    initSocket.on('userConnected', (payload) => setOnline(payload));
-    initSocket.on('userDisconnected', (payload) => setOnline(payload));
+      initSocket.emit('connected', { username: username });
+      initSocket.on('userConnected', (payload) => setOnline(payload));
+      initSocket.on('userDisconnected', (payload) => setOnline(payload));
 
-    return () => {
-      initSocket.off('connect');
-      initSocket.off('error');
-      initSocket.off('disconnect');
-      initSocket.off('userConnected');
-      initSocket.off('userDisconnected');
-    };
-  }, []);
+      return () => {
+        initSocket.off('connect');
+        initSocket.off('connected');
+        initSocket.off('error');
+        initSocket.off('disconnect');
+        initSocket.off('userConnected');
+        initSocket.off('userDisconnected');
+      };
+    }
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) {
     return (
       <ChakraProvider>
-        <Login setIsLoggedIn={setIsLoggedIn} />
+        <Login username={username} setUsername={setUsername} setIsLoggedIn={setIsLoggedIn} />
         <ToastContainer
           position="top-center"
           autoClose={5000}
