@@ -60,9 +60,7 @@ const Canvas = (props) => {
         };
 
         p.mouseReleased = () => currentTool.mouseReleased();
-
         p.keyPressed = () => currentTool.keyPressed();
-
         p.frameRate(60);
         p.image(frameBuffer, 0, 0);
       };
