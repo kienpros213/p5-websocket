@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react';
-import TestCanvas from './components/TestCanvas';
+import Canvas from './components/Canvas';
 import { io } from 'socket.io-client';
 import { Box, HStack } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
@@ -16,7 +16,6 @@ const App = () => {
   const [room, setRoom] = useState();
   const [online, setOnline] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [clearCanvas, setClearCanvas] = useState(false);
   useEffect(() => {
     const initSocket = io('ws://localhost:3000');
     setSocket(initSocket);
@@ -32,9 +31,7 @@ const App = () => {
     });
 
     initSocket.emit('connected');
-
     initSocket.on('userConnected', (payload) => setOnline(payload));
-
     initSocket.on('userDisconnected', (payload) => setOnline(payload));
 
     return () => {
@@ -83,7 +80,7 @@ const App = () => {
           <RoomPanel socket={socket} room={room} setRoom={setRoom} online={online} />
         </Box>
         <Box pos="absolute" display="flex" zIndex="0"></Box>
-        <TestCanvas
+        <Canvas
           strokeWeight={strokeWeight}
           socket={socket}
           tool={tool}
