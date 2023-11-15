@@ -1,7 +1,7 @@
 export function redrawCanvas(p, brushes, rectangles, circles, freeShapes, frameBuffer) {
-  redrawRectangle(frameBuffer, rectangles);
-  redrawCircle(frameBuffer, circles);
   redrawFreeShape(frameBuffer, freeShapes, p);
+  redrawCircle(frameBuffer, circles);
+  redrawRectangle(frameBuffer, rectangles);
   redrawBrush(frameBuffer, brushes);
 }
 
