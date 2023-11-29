@@ -117,11 +117,11 @@ const Threejs = () => {
     <button
       onClick={() => {
         currentShape = 'box';
-        scene.remove(shape);
         control.detach(shape);
+        scene.remove(shape);
         const newShape = shapeFactory(currentShape);
         scene.add(newShape);
-        control.attach(shape);
+        control.attach(newShape);
       }}
     >
       box
