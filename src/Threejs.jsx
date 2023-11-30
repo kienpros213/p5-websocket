@@ -10,12 +10,12 @@ import _ from 'lodash';
 
 const Threejs = () => {
   let shapeName = 'plane';
+  let points = [];
   let control;
   let isDraw = false;
   let excludeObjects = [];
   const size = 1000;
   const divisions = 1000;
-  const points = [];
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -36,14 +36,6 @@ const Threejs = () => {
   const shape = createPlane(5, 5, '#34aeeb');
   shape.name = 'plane';
 
-  //line geometry
-  const drawLine = new MeshLineGeometry();
-  const drawLineMaterial = new MeshLineMaterial({
-    color: '#eb4034',
-    lineWidth: 0.1
-  });
-  const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
-
   //transform control
   control = new TransformControls(camera, renderer.domElement);
   control.attach(shape);
@@ -57,7 +49,7 @@ const Threejs = () => {
   scene.fog = new THREE.Fog(fogColor, 1, 70);
 
   //add stuff
-  scene.add(shape, gridHelper, light, drawLineMesh, control);
+  scene.add(shape, gridHelper, light, control);
   camera.position.z = 8;
   orbit.update();
   excludeObjects.push(control, gridHelper);
@@ -69,7 +61,6 @@ const Threejs = () => {
 
   //update function
   function animate() {
-    console.log(shapeName);
     requestAnimationFrame(animate);
     orbit.update();
     render();
@@ -80,8 +71,10 @@ const Threejs = () => {
     // Check if the pressed key is 'Enter'
     if (event.key === 'Enter') {
       // Toggle the value of isDraw
+      if (isDraw) {
+        points = [];
+      }
       isDraw = !isDraw;
-      console.log(isDraw);
     }
 
     if (event.key === ' ') {
@@ -95,7 +88,7 @@ const Threejs = () => {
   window.addEventListener(
     'mousemove',
     _.throttle((event) => {
-      onPointerMove(event, camera, scene, excludeObjects, points, drawLine, isDraw);
+      onPointerMove(event, camera, scene, excludeObjects, isDraw, points);
     }, 1000 / 120)
   );
   window.addEventListener('keydown', handleKeyPress);
@@ -103,7 +96,7 @@ const Threejs = () => {
   control.addEventListener('dragging-changed', function (event) {
     orbit.enabled = !event.value;
   });
-
+  ////////////// UI ////////////////
   return (
     <>
       <Button

@@ -1,9 +1,19 @@
 import * as THREE from 'three';
+import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 
-export function onPointerMove(event, camera, scene, excludeObjects, points, drawLine, isDraw) {
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  let drawPos = new THREE.Vector3();
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let drawPos = new THREE.Vector3();
+
+export function onPointerMove(event, camera, scene, excludeObjects, isDraw, points) {
+  const drawLine = new MeshLineGeometry();
+  const drawLineMaterial = new MeshLineMaterial({
+    color: '#eb4034',
+    lineWidth: 0.1
+  });
+  const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
+  scene.add(drawLineMesh);
+
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
