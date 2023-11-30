@@ -13,13 +13,12 @@ export function createCube(width, height, depth, color) {
   return cube;
 }
 
-export function createPlane(width, height, color, xRotation) {
+export function createPlane(width, height, color) {
   const planeGeometry = new THREE.PlaneGeometry(width, height);
   const planeMaterial = new THREE.MeshStandardMaterial({
     color: color,
     side: THREE.DoubleSide
   });
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  plane.rotation.set(xRotation, 0, 0);
   return plane;
 }
