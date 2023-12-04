@@ -11,6 +11,10 @@ export function onPointerMove(event, camera, scene, excludeObjects, isDraw, poin
     color: '#eb4034',
     lineWidth: 0.1
   });
+  drawLineMaterial.polygonOffset = true;
+  drawLineMaterial.polygonOffsetUnit = 10;
+  drawLineMaterial.polygonOffsetFactor = 10;
+
   const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
   scene.add(drawLineMesh);
 
@@ -21,7 +25,7 @@ export function onPointerMove(event, camera, scene, excludeObjects, isDraw, poin
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
   if (intersects.length > 0) {
     console.log(intersects);
-    drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z + 0.1];
+    drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
   }
 
   if (isDraw) {

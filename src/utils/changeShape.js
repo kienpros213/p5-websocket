@@ -37,6 +37,7 @@ export function changeShape(targetShape, shapeName, scene, control) {
 
       const newPlane = shapeFactory(shapeName);
       newPlane.name = 'plane';
+      newPlane.renderOrder(-1);
       scene.add(newPlane);
       control.attach(newPlane);
       break;

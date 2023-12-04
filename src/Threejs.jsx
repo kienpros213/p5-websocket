@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { createLight, createPlane } from './utils/utilsConstructor';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
@@ -46,7 +45,7 @@ const Threejs = () => {
   //fog
   const fogColor = new THREE.Color(0xffffff);
   scene.background = fogColor;
-  scene.fog = new THREE.Fog(fogColor, 1, 70);
+  scene.fog = new THREE.Fog(fogColor, 1, 50);
 
   //add stuff
   scene.add(shape, gridHelper, light, control);
