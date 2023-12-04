@@ -19,6 +19,7 @@ import { passwordValidate } from '../utils/passwordValidation';
 import { toast } from 'react-toastify';
 
 function Login(props) {
+  const [emailIsValid, setEmailIsValid] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -38,7 +39,7 @@ function Login(props) {
               setEmail(e.target.value);
             }}
             onBlur={() => {
-              emailValidate(email, setEmailError);
+              emailValidate(email, setEmailError, setEmailIsValid);
             }}
             backgroundColor="#A5D7E8"
             type="email"
@@ -84,22 +85,9 @@ function Login(props) {
           <Button
             onClick={async () => {
               if (!isOpen) {
-                SendLoginRequest(props.username, password, props.setIsLoggedIn);
-              } else {
-                const registerResponse = await SendRegisterRequest(props.username, password, email);
-                if (registerResponse.error) {
-                  toast.error('' + registerResponse.error + '', {
-                    position: 'top-center',
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: 'light'
-                  });
-                } else if (registerResponse.success) {
-                  toast.success('' + registerResponse.success + '', {
+                const loginResponse = await SendLoginRequest(props.username, password, props.setIsLoggedIn);
+                if (loginResponse.error) {
+                  toast.error('' + loginResponse.error + '', {
                     position: 'top-center',
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -110,6 +98,33 @@ function Login(props) {
                     theme: 'light'
                   });
                 }
+              } else {
+                if (emailIsValid) {
+                  const registerResponse = await SendRegisterRequest(props.username, password, email, emailIsValid);
+                  if (registerResponse.error) {
+                    toast.error('' + registerResponse.error + '', {
+                      position: 'top-center',
+                      autoClose: 5000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: 'light'
+                    });
+                  } else if (registerResponse.success) {
+                    toast.success('' + registerResponse.success + '', {
+                      position: 'top-center',
+                      autoClose: 5000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: 'light'
+                    });
+                  }
+                }
               }
             }}
           >
@@ -118,7 +133,7 @@ function Login(props) {
           <Text color="#A5D7E8">
             Don't have an account ?
             <Link onClick={onToggle} color="teal.500" href="#">
-              that kinda gay, you know
+              don't have account?
             </Link>
           </Text>
         </HStack>

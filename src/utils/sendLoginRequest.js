@@ -8,7 +8,9 @@ export function SendLoginRequest(username, password, setIsLoggedIn) {
         console.log(response.data.access_token);
         setIsLoggedIn(true);
       }
-      return;
+      return { success: 'login success' };
     })
-    .catch((error) => error.response.data);
+    .catch((error) => {
+      return { error: error.response.data.message };
+    });
 }
