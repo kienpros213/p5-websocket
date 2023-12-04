@@ -1,15 +1,23 @@
 import * as THREE from 'three';
+import { io } from 'socket.io-client';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLight, createPlane } from './utils/utilsConstructor';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
 import { Button } from '@chakra-ui/react';
 import { onPointerMove } from './utils/onPointerMove';
+import { threeSocketListener } from './threeUtils/threeSocketListener';
 import _ from 'lodash';
+
+const socket = io('ws://localhost:3000');
+socket.on('connect', () => {
+  console.log('WebSocket connected');
+});
 
 const Threejs = () => {
   let shapeName = 'plane';
   let points = [];
+  let recievedPoints = [];
   let control;
   let isDraw = false;
   let excludeObjects = [];
@@ -59,6 +67,13 @@ const Threejs = () => {
   }
 
   //update function
+
+  socket.on(
+    'serverThree',
+    _.throttle((payload) => {
+      threeSocketListener(scene, payload, recievedPoints);
+    }, 1000 / 120)
+  );
   function animate() {
     requestAnimationFrame(animate);
     orbit.update();
@@ -87,7 +102,7 @@ const Threejs = () => {
   window.addEventListener(
     'mousemove',
     _.throttle((event) => {
-      onPointerMove(event, camera, scene, excludeObjects, isDraw, points);
+      onPointerMove(event, camera, scene, excludeObjects, isDraw, points, socket);
     }, 1000 / 120)
   );
   window.addEventListener('keydown', handleKeyPress);

@@ -5,7 +5,7 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let drawPos = new THREE.Vector3();
 
-export function onPointerMove(event, camera, scene, excludeObjects, isDraw, points) {
+export function onPointerMove(event, camera, scene, excludeObjects, isDraw, points, socket) {
   const drawLine = new MeshLineGeometry();
   const drawLineMaterial = new MeshLineMaterial({
     color: '#eb4034',
@@ -24,12 +24,11 @@ export function onPointerMove(event, camera, scene, excludeObjects, isDraw, poin
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
   if (intersects.length > 0) {
-    console.log(intersects);
     drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
   }
 
   if (isDraw) {
-    console.log(intersects.length);
+    socket.emit('clientThree', drawPos);
     points.push(drawPos);
     drawLine.setPoints(points.flat());
   }
