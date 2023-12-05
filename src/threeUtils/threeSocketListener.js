@@ -1,10 +1,19 @@
 import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 
-let drawPos = new THREE.Vector3();
+export function threeSocketListener(scene, payload, recievedPoints) {
+  const { id, data } = payload;
+  //find exist object inside point array
+  const existObject = recievedPoints.find((obj) => obj.id === id);
 
-export function threeSocketListener(scene, payload, recievedPoint) {
-  console.log(payload);
+  if (existObject) {
+    existObject.data.push(data);
+  } else {
+    const newObject = { id: id, data: data };
+    recievedPoints.push(newObject);
+  }
+
+  //line mesh setup
   const drawLine = new MeshLineGeometry();
   const drawLineMaterial = new MeshLineMaterial({
     color: '#eb4034',
@@ -13,11 +22,11 @@ export function threeSocketListener(scene, payload, recievedPoint) {
   drawLineMaterial.polygonOffset = true;
   drawLineMaterial.polygonOffsetUnit = 10;
   drawLineMaterial.polygonOffsetFactor = 10;
-
   const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
   scene.add(drawLineMesh);
-  drawPos = payload;
 
-  recievedPoint.push(drawPos);
-  drawLine.setPoints(recievedPoint.flat());
+  console.log(recievedPoints);
+
+  // recievedPoint.push(drawPos);
+  drawLine.setPoints(existObject.data.flat());
 }

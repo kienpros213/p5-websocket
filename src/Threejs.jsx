@@ -67,16 +67,21 @@ const Threejs = () => {
   }
 
   //update function
-
   socket.on(
     'serverThree',
     _.throttle((payload) => {
       threeSocketListener(scene, payload, recievedPoints);
     }, 1000 / 120)
   );
+
+  socket.on('serverStopDraw', (payload) => {
+    console.log(payload);
+    const existObject = recievedPoints.find((obj) => obj.id === payload);
+    existObject.data = [];
+  });
+
   function animate() {
     requestAnimationFrame(animate);
-    console.log(shapeName);
     orbit.update();
     render();
   }
@@ -88,6 +93,7 @@ const Threejs = () => {
       // Toggle the value of isDraw
       if (isDraw) {
         points = [];
+        socket.emit('clientStopDraw');
       }
       isDraw = !isDraw;
     }
