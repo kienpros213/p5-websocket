@@ -37,7 +37,6 @@ export function changeShape(targetShape, shapeName, scene, control) {
 
       const newPlane = shapeFactory(shapeName);
       newPlane.name = 'plane';
-      newPlane.renderOrder(-1);
       scene.add(newPlane);
       control.attach(newPlane);
       break;
@@ -59,6 +58,22 @@ export function changeShape(targetShape, shapeName, scene, control) {
       scene.add(newSphere);
       control.attach(newSphere);
       break;
+    // currentShape = scene.getObjectByName(shapeName);
+    // existingShape = scene.getObjectByName('sphere');
+    // shapeName = 'sphere';
+    // if (existingShape) {
+    //   existingShape.geometry.dispose();
+    //   scene.remove(currentShape);
+    // } else {
+    //   currentShape.geometry.dispose();
+    //   scene.remove(currentShape);
+    // }
+
+    // const newSphere = shapeFactory(shapeName);
+    // newSphere.name = 'sphere';
+    // scene.add(newSphere);
+    // control.attach(newSphere);
+    // break;
 
     default:
       console.log('Unsupported shape:', targetShape);

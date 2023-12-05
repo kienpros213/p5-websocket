@@ -76,6 +76,7 @@ const Threejs = () => {
   );
   function animate() {
     requestAnimationFrame(animate);
+    console.log(shapeName);
     orbit.update();
     render();
   }
@@ -129,7 +130,7 @@ const Threejs = () => {
       </Button>
       <Button
         onClick={() => {
-          changeShape('sphere', shapeName, scene, control);
+          shapeName = changeShape('sphere', shapeName, scene, control);
         }}
       >
         sphere
