@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 import { io } from 'socket.io-client';
+import _ from 'lodash';
+import { VStack, Box, IconButton, Divider, useDisclosure } from '@chakra-ui/react';
+import { BoxFill, CircleFill, SquareFill, QuestionLg } from 'react-bootstrap-icons';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLight, createPlane } from './utils/utilsConstructor';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
-import { Button } from '@chakra-ui/react';
 import { onPointerMove } from './utils/onPointerMove';
 import { threeSocketListener } from './threeUtils/threeSocketListener';
-import _ from 'lodash';
+import HelpeModal from './components/HelpModal';
 
 const socket = io('ws://localhost:3000');
 socket.on('connect', () => {
@@ -25,6 +27,7 @@ const Threejs = () => {
   const divisions = 1000;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -89,17 +92,33 @@ const Threejs = () => {
   //handle
   function handleKeyPress(event) {
     // Check if the pressed key is 'Enter'
+    switch (event.keyCode) {
+      case 87: // W
+        control.setMode('translate');
+        break;
+
+      case 69: // E
+        control.setMode('rotate');
+        break;
+
+      case 82: // R
+        control.setMode('scale');
+        break;
+    }
+
     if (event.key === 'Enter') {
       // Toggle the value of isDraw
       if (isDraw) {
         points = [];
+        const currentShape = scene.getObjectByName(shapeName);
+        control.attach(currentShape);
         socket.emit('clientStopDraw');
       }
+      if (!isDraw) {
+        const currentShape = scene.getObjectByName(shapeName);
+        control.detach(currentShape);
+      }
       isDraw = !isDraw;
-    }
-
-    if (event.key === ' ') {
-      control.detach(shape);
     }
   }
 
@@ -120,27 +139,32 @@ const Threejs = () => {
   ////////////// UI ////////////////
   return (
     <>
-      <Button
-        onClick={() => {
-          shapeName = changeShape('box', shapeName, scene, control);
-        }}
-      >
-        box
-      </Button>
-      <Button
-        onClick={() => {
-          shapeName = changeShape('plane', shapeName, scene, control);
-        }}
-      >
-        plane
-      </Button>
-      <Button
-        onClick={() => {
-          shapeName = changeShape('sphere', shapeName, scene, control);
-        }}
-      >
-        sphere
-      </Button>
+      <Box pos="absolute" m="10px" p="10px" backgroundColor="#081924" borderRadius="10px">
+        <VStack>
+          <IconButton icon={<QuestionLg />} onClick={onOpen}></IconButton>
+          <Divider />
+          <IconButton
+            icon={<BoxFill />}
+            onClick={() => {
+              shapeName = changeShape('box', shapeName, scene, control);
+            }}
+          ></IconButton>
+          <IconButton
+            icon={<SquareFill />}
+            onClick={() => {
+              shapeName = changeShape('plane', shapeName, scene, control);
+            }}
+          ></IconButton>
+          <IconButton
+            icon={<CircleFill />}
+            onClick={() => {
+              shapeName = changeShape('sphere', shapeName, scene, control);
+            }}
+          ></IconButton>
+        </VStack>
+      </Box>
+
+      <HelpeModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
     </>
   );
 };
