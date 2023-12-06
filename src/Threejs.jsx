@@ -3,13 +3,15 @@ import { io } from 'socket.io-client';
 import _ from 'lodash';
 import { VStack, Box, IconButton, Divider, useDisclosure } from '@chakra-ui/react';
 import { BoxFill, CircleFill, SquareFill, QuestionLg } from 'react-bootstrap-icons';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { createLight, createPlane } from './utils/utilsConstructor';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
 import { onPointerMove } from './utils/onPointerMove';
 import { threeSocketListener } from './threeUtils/threeSocketListener';
 import HelpeModal from './components/HelpModal';
+import CameraControls from 'camera-controls';
+
+CameraControls.install({ THREE: THREE });
 
 const socket = io('ws://localhost:3000');
 socket.on('connect', () => {
@@ -17,6 +19,7 @@ socket.on('connect', () => {
 });
 
 const Threejs = () => {
+  const clock = new THREE.Clock();
   let shapeName = 'plane';
   let points = [];
   let recievedPoints = [];
@@ -25,10 +28,12 @@ const Threejs = () => {
   let excludeObjects = [];
   const size = 1000;
   const divisions = 1000;
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+  camera.position.z = 8;
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
     logarithmicDepthBuffer: true
@@ -51,7 +56,7 @@ const Threejs = () => {
   control.attach(shape);
 
   //orbit control
-  const orbit = new OrbitControls(camera, renderer.domElement);
+  const cameraControls = new CameraControls(camera, renderer.domElement);
 
   //fog
   const fogColor = new THREE.Color(0xffffff);
@@ -60,8 +65,6 @@ const Threejs = () => {
 
   //add stuff
   scene.add(shape, gridHelper, light, control);
-  camera.position.z = 8;
-  orbit.update();
   excludeObjects.push(control, gridHelper);
 
   //render function
@@ -84,14 +87,14 @@ const Threejs = () => {
   });
 
   function animate() {
+    const delta = clock.getDelta();
+    cameraControls.update(delta);
     requestAnimationFrame(animate);
-    orbit.update();
     render();
   }
 
   //handle
   function handleKeyPress(event) {
-    // Check if the pressed key is 'Enter'
     switch (event.keyCode) {
       case 87: // W
         control.setMode('translate');
