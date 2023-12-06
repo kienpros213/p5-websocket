@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 
-function HelpeModal(props) {
+function HelpModal(props) {
   const [scrollBehavior, setScrollBehavior] = React.useState('inside');
 
   const btnRef = React.useRef(null);
@@ -86,4 +86,4 @@ function HelpeModal(props) {
   );
 }
 
-export default HelpeModal;
+export default HelpModal;

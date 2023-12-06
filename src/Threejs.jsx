@@ -8,8 +8,10 @@ import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
 import { onPointerMove } from './utils/onPointerMove';
 import { threeSocketListener } from './threeUtils/threeSocketListener';
-import HelpeModal from './components/HelpModal';
+import HelpModal from './components/HelpModal';
 import CameraControls from 'camera-controls';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
 
 CameraControls.install({ THREE: THREE });
 
@@ -21,6 +23,7 @@ socket.on('connect', () => {
 const Threejs = () => {
   const clock = new THREE.Clock();
   let shapeName = 'plane';
+  let isRotating = false;
   let points = [];
   let recievedPoints = [];
   let control;
@@ -57,6 +60,7 @@ const Threejs = () => {
 
   //orbit control
   const cameraControls = new CameraControls(camera, renderer.domElement);
+  cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
 
   //fog
   const fogColor = new THREE.Color(0xffffff);
@@ -94,7 +98,7 @@ const Threejs = () => {
   }
 
   //handle
-  function handleKeyPress(event) {
+  function handleKeyDown(event) {
     switch (event.keyCode) {
       case 87: // W
         control.setMode('translate');
@@ -106,6 +110,9 @@ const Threejs = () => {
 
       case 82: // R
         control.setMode('scale');
+        break;
+      case 18: // Alt
+        cameraControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
         break;
     }
 
@@ -125,6 +132,15 @@ const Threejs = () => {
     }
   }
 
+  function handleKeyUp(event) {
+    switch (event.keyCode) {
+      //Alt
+      case 18:
+        cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
+        break;
+    }
+  }
+
   animate();
 
   //event listener
@@ -134,11 +150,9 @@ const Threejs = () => {
       onPointerMove(event, camera, scene, excludeObjects, isDraw, points, socket);
     }, 1000 / 120)
   );
-  window.addEventListener('keydown', handleKeyPress);
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keyup', handleKeyUp);
   control.addEventListener('change', render);
-  control.addEventListener('dragging-changed', function (event) {
-    orbit.enabled = !event.value;
-  });
   ////////////// UI ////////////////
   return (
     <>
@@ -164,10 +178,28 @@ const Threejs = () => {
               shapeName = changeShape('sphere', shapeName, scene, control);
             }}
           ></IconButton>
+          <Divider />
+          <IconButton
+            onClick={() => {
+              cameraControls.lookInDirectionOf(-3, 0, 0, true);
+            }}
+            icon={<FontAwesomeIcon icon={faX} />}
+          ></IconButton>
+          <IconButton
+            onClick={() => {
+              cameraControls.lookInDirectionOf(0, 0, -3, true);
+            }}
+            icon={<FontAwesomeIcon icon={faY} />}
+          ></IconButton>
+          <IconButton
+            onClick={() => {
+              cameraControls.lookInDirectionOf(0, -3, 0, true);
+            }}
+            icon={<FontAwesomeIcon icon={faZ} />}
+          ></IconButton>
         </VStack>
       </Box>
-
-      <HelpeModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
+      <HelpModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
     </>
   );
 };
