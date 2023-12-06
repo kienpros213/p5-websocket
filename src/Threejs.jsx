@@ -12,6 +12,8 @@ import HelpModal from './components/HelpModal';
 import CameraControls from 'camera-controls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
+import { Plane } from './shape/Shape';
+import { cameraPlane } from './threeUtils/cameraPlane';
 
 CameraControls.install({ THREE: THREE });
 
@@ -53,6 +55,21 @@ const Threejs = () => {
   //mesh
   const shape = createPlane(5, 5, '#34aeeb');
   shape.name = 'plane';
+
+  //camera plane
+  //red
+  const xPlane = cameraPlane('#d62222');
+  xPlane.position.set(6, 0, 0);
+  xPlane.rotation.set(0, -1.57079633, 0);
+  //blue
+  const yPlane = cameraPlane('#1c12a3');
+  yPlane.position.set(0, 0, 6);
+  yPlane.rotation.set(0, 3.14159265, 0);
+
+  //green
+  const zPlane = cameraPlane('#23db39');
+  zPlane.position.set(0, 6, 0);
+  zPlane.rotation.set(1.57079633, 0, 0);
 
   //transform control
   control = new TransformControls(camera, renderer.domElement);
@@ -97,7 +114,42 @@ const Threejs = () => {
     render();
   }
 
+  //fit to rect function
+
+  const _centerPosition = new THREE.Vector3();
+  const _normal = new THREE.Vector3();
+  const _cameraPosition = new THREE.Vector3();
+
+  function fitToRect(rect) {
+    const rectWidth = rect.geometry.parameters.width;
+    const rectHeight = rect.geometry.parameters.height;
+
+    rect.updateMatrixWorld();
+    const rectCenterPosition = _centerPosition.copy(rect.position);
+    const rectNormal = _normal.set(0, 0, 1).applyQuaternion(rect.quaternion);
+    const distance = cameraControls.getDistanceToFitBox(rectWidth, rectHeight, 0);
+    const cameraPosition = _cameraPosition.copy(rectNormal).multiplyScalar(-distance).add(rectCenterPosition);
+
+    cameraControls.setLookAt(
+      cameraPosition.x,
+      cameraPosition.y,
+      cameraPosition.z,
+      rectCenterPosition.x,
+      rectCenterPosition.y,
+      rectCenterPosition.z,
+      true
+    );
+  }
+
   //handle
+  function handleMouseUp() {
+    const currentShape = scene.getObjectByName(shapeName);
+    const { x, y, z } = currentShape.position;
+    xPlane.position.set(x + 6, y, z);
+    yPlane.position.set(x, y, z + 6);
+    zPlane.position.set(x, y + 6, z);
+  }
+
   function handleKeyDown(event) {
     switch (event.keyCode) {
       case 87: // W
@@ -152,6 +204,7 @@ const Threejs = () => {
   );
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
+  window.addEventListener('mouseup', handleMouseUp);
   control.addEventListener('change', render);
   ////////////// UI ////////////////
   return (
@@ -181,19 +234,22 @@ const Threejs = () => {
           <Divider />
           <IconButton
             onClick={() => {
-              cameraControls.lookInDirectionOf(-3, 0, 0, true);
+              // cameraControls.lookInDirectionOf(-3, 0, 0, true);
+              fitToRect(xPlane);
             }}
             icon={<FontAwesomeIcon icon={faX} />}
           ></IconButton>
           <IconButton
             onClick={() => {
-              cameraControls.lookInDirectionOf(0, 0, -3, true);
+              // cameraControls.lookInDirectionOf(0, 0, -3, true);
+              fitToRect(yPlane);
             }}
             icon={<FontAwesomeIcon icon={faY} />}
           ></IconButton>
           <IconButton
             onClick={() => {
-              cameraControls.lookInDirectionOf(0, -3, 0, true);
+              // cameraControls.lookInDirectionOf(0, -3, 0, true);
+              fitToRect(zPlane);
             }}
             icon={<FontAwesomeIcon icon={faZ} />}
           ></IconButton>
