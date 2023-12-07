@@ -1,3 +1,4 @@
+import { fitToRect } from './fitToRect';
 import _ from 'lodash';
 const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane) => {
   const currentShape = scene.getObjectByName(shapeName);
@@ -7,7 +8,20 @@ const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane) => {
   zPlane.position.set(x, y, z + 6);
 };
 
-const handleKeyDown = (event, control, cameraControls, CameraControls, isDraw, scene, shapeName, socket, points) => {
+const handleKeyDown = (
+  event,
+  control,
+  cameraControls,
+  CameraControls,
+  isDraw,
+  scene,
+  shapeName,
+  socket,
+  points,
+  xPlane,
+  yPlane,
+  zPlane
+) => {
   switch (event.keyCode) {
     case 87: // W
       control.setMode('translate');
@@ -17,6 +31,18 @@ const handleKeyDown = (event, control, cameraControls, CameraControls, isDraw, s
       break;
     case 82: // R
       control.setMode('scale');
+      break;
+    case 88: //X
+      console.log('x');
+      fitToRect(xPlane, cameraControls);
+      break;
+    case 89: //Y
+      console.log('y');
+      fitToRect(yPlane, cameraControls);
+      break;
+    case 90: //Z
+      console.log('z');
+      fitToRect(zPlane, cameraControls);
       break;
     case 18: // Alt
       cameraControls.mouseButtons.left = CameraControls.ACTION.ROTATE;

@@ -155,9 +155,11 @@ const Threejs = () => {
         scene.current,
         shapeName.current,
         socket,
-        points
+        points,
+        xPlane.current,
+        yPlane.current,
+        zPlane.current
       );
-      console.log(newIsDraw, newPoints, isDraw, points);
       isDraw.current = newIsDraw;
       points = newPoints;
     });
