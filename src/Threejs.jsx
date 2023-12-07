@@ -1,19 +1,22 @@
 import * as THREE from 'three';
-import { io } from 'socket.io-client';
 import _ from 'lodash';
-import { VStack, Box, IconButton, Divider, useDisclosure } from '@chakra-ui/react';
-import { BoxFill, CircleFill, SquareFill, QuestionLg } from 'react-bootstrap-icons';
+import HelpModal from './components/HelpModal';
+import CameraControls from 'camera-controls';
+import { io } from 'socket.io-client';
+import { VStack, Box, IconButton, Divider, useDisclosure, HStack, Input } from '@chakra-ui/react';
+import { BoxFill, CircleFill, SquareFill, QuestionLg, ArrowCounterclockwise } from 'react-bootstrap-icons';
 import { createLight, createPlane } from './utils/utilsConstructor';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
 import { onPointerMove } from './utils/onPointerMove';
 import { threeSocketListener } from './threeUtils/threeSocketListener';
-import HelpModal from './components/HelpModal';
-import CameraControls from 'camera-controls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
-import { Plane } from './shape/Shape';
+import { fitToRect } from './threeUtils/fitToRect';
 import { cameraPlane } from './threeUtils/cameraPlane';
+import { useEffect, useRef, useState } from 'react';
+import { handleMouseUp, handleKeyUp, handleKeyDown } from './threeUtils/eventControls';
+import { shapeRotation } from './threeUtils/shapeRotation';
 
 CameraControls.install({ THREE: THREE });
 
@@ -24,232 +27,227 @@ socket.on('connect', () => {
 
 const Threejs = () => {
   const clock = new THREE.Clock();
-  let shapeName = 'plane';
-  let isRotating = false;
+  const [rotation, setRotation] = useState(30);
+  let shapeName = useRef('plane');
   let points = [];
   let recievedPoints = [];
   let control;
   let isDraw = false;
   let excludeObjects = [];
+  let cameraControls;
   const size = 1000;
   const divisions = 1000;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  let scene = useRef();
+  let xPlane, yPlane, zPlane;
+  useEffect(() => {
+    scene.current = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 8;
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      logarithmicDepthBuffer: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-  camera.position.z = 8;
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    logarithmicDepthBuffer: true
-  });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+    //grid helper
+    const gridHelper = new THREE.GridHelper(size, divisions);
 
-  //grid helper
-  const gridHelper = new THREE.GridHelper(size, divisions);
+    //light
+    const light = createLight(0xffffff, 10);
 
-  //light
-  const light = createLight(0xffffff, 10);
+    //mesh
+    const shape = createPlane(5, 5, '#34aeeb');
+    shape.name = 'plane';
 
-  //mesh
-  const shape = createPlane(5, 5, '#34aeeb');
-  shape.name = 'plane';
+    //camera plane
+    //red
+    xPlane = cameraPlane('#d62222');
+    xPlane.position.set(6, 0, 0);
+    xPlane.rotation.set(0, -1.57079633, 0);
+    //blue
+    yPlane = cameraPlane('#1c12a3');
+    yPlane.position.set(0, 0, 6);
+    yPlane.rotation.set(0, 3.14159265, 0);
 
-  //camera plane
-  //red
-  const xPlane = cameraPlane('#d62222');
-  xPlane.position.set(6, 0, 0);
-  xPlane.rotation.set(0, -1.57079633, 0);
-  //blue
-  const yPlane = cameraPlane('#1c12a3');
-  yPlane.position.set(0, 0, 6);
-  yPlane.rotation.set(0, 3.14159265, 0);
+    //green
+    zPlane = cameraPlane('#23db39');
+    zPlane.position.set(0, 6, 0);
+    zPlane.rotation.set(1.57079633, 0, 0);
 
-  //green
-  const zPlane = cameraPlane('#23db39');
-  zPlane.position.set(0, 6, 0);
-  zPlane.rotation.set(1.57079633, 0, 0);
+    //transform control
+    control = new TransformControls(camera, renderer.domElement);
+    control.attach(shape);
 
-  //transform control
-  control = new TransformControls(camera, renderer.domElement);
-  control.attach(shape);
+    //orbit control
+    cameraControls = new CameraControls(camera, renderer.domElement);
+    cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
 
-  //orbit control
-  const cameraControls = new CameraControls(camera, renderer.domElement);
-  cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
+    //fog
+    const fogColor = new THREE.Color(0xffffff);
+    scene.current.background = fogColor;
+    scene.current.fog = new THREE.Fog(fogColor, 1, 50);
 
-  //fog
-  const fogColor = new THREE.Color(0xffffff);
-  scene.background = fogColor;
-  scene.fog = new THREE.Fog(fogColor, 1, 50);
+    //add stuff
+    scene.current.add(shape, gridHelper, light, control);
+    excludeObjects.push(control, gridHelper);
 
-  //add stuff
-  scene.add(shape, gridHelper, light, control);
-  excludeObjects.push(control, gridHelper);
+    //render function
+    function render() {
+      renderer.render(scene.current, camera);
+    }
 
-  //render function
-  function render() {
-    renderer.render(scene, camera);
-  }
-
-  //update function
-  socket.on(
-    'serverThree',
-    _.throttle((payload) => {
-      threeSocketListener(scene, payload, recievedPoints);
-    }, 1000 / 120)
-  );
-
-  socket.on('serverStopDraw', (payload) => {
-    console.log(payload);
-    const existObject = recievedPoints.find((obj) => obj.id === payload);
-    existObject.data = [];
-  });
-
-  function animate() {
-    const delta = clock.getDelta();
-    cameraControls.update(delta);
-    requestAnimationFrame(animate);
-    render();
-  }
-
-  //fit to rect function
-
-  const _centerPosition = new THREE.Vector3();
-  const _normal = new THREE.Vector3();
-  const _cameraPosition = new THREE.Vector3();
-
-  function fitToRect(rect) {
-    const rectWidth = rect.geometry.parameters.width;
-    const rectHeight = rect.geometry.parameters.height;
-
-    rect.updateMatrixWorld();
-    const rectCenterPosition = _centerPosition.copy(rect.position);
-    const rectNormal = _normal.set(0, 0, 1).applyQuaternion(rect.quaternion);
-    const distance = cameraControls.getDistanceToFitBox(rectWidth, rectHeight, 0);
-    const cameraPosition = _cameraPosition.copy(rectNormal).multiplyScalar(-distance).add(rectCenterPosition);
-
-    cameraControls.setLookAt(
-      cameraPosition.x,
-      cameraPosition.y,
-      cameraPosition.z,
-      rectCenterPosition.x,
-      rectCenterPosition.y,
-      rectCenterPosition.z,
-      true
+    //update function
+    socket.on(
+      'serverThree',
+      _.throttle((payload) => {
+        threeSocketListener(scene.current, payload, recievedPoints);
+      }, 1000 / 120)
     );
-  }
 
-  //handle
-  function handleMouseUp() {
-    const currentShape = scene.getObjectByName(shapeName);
-    const { x, y, z } = currentShape.position;
-    xPlane.position.set(x + 6, y, z);
-    yPlane.position.set(x, y, z + 6);
-    zPlane.position.set(x, y + 6, z);
-  }
+    socket.on('serverStopDraw', (payload) => {
+      console.log(payload);
+      const existObject = recievedPoints.find((obj) => obj.id === payload);
+      existObject.data = [];
+    });
 
-  function handleKeyDown(event) {
-    switch (event.keyCode) {
-      case 87: // W
-        control.setMode('translate');
-        break;
-
-      case 69: // E
-        control.setMode('rotate');
-        break;
-
-      case 82: // R
-        control.setMode('scale');
-        break;
-      case 18: // Alt
-        cameraControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
-        break;
+    function animate() {
+      const delta = clock.getDelta();
+      cameraControls.update(delta);
+      requestAnimationFrame(animate);
+      render();
     }
 
-    if (event.key === 'Enter') {
-      // Toggle the value of isDraw
-      if (isDraw) {
-        points = [];
-        const currentShape = scene.getObjectByName(shapeName);
-        control.attach(currentShape);
-        socket.emit('clientStopDraw');
-      }
-      if (!isDraw) {
-        const currentShape = scene.getObjectByName(shapeName);
-        control.detach(currentShape);
-      }
-      isDraw = !isDraw;
-    }
-  }
+    animate();
 
-  function handleKeyUp(event) {
-    switch (event.keyCode) {
-      //Alt
-      case 18:
-        cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
-        break;
-    }
-  }
+    //mouse move
+    window.addEventListener(
+      'mousemove',
+      _.throttle((e) => {
+        onPointerMove(e, camera, scene.current, excludeObjects, isDraw, points, socket);
+      }, 1000 / 120)
+    );
+    //key down
+    window.addEventListener('keydown', (e) => {
+      const { isDraw: newIsDraw, points: newPoints } = handleKeyDown(
+        e,
+        control,
+        cameraControls,
+        CameraControls,
+        isDraw,
+        scene.current,
+        shapeName.current,
+        socket,
+        points
+      );
+      isDraw = newIsDraw;
+      points = newPoints;
+    });
+    //key up
+    window.addEventListener('keyup', (e) => {
+      handleKeyUp(e, cameraControls, CameraControls);
+    });
+    //mouse up
+    window.addEventListener('mouseup', () => {
+      handleMouseUp(scene.current, shapeName.current, xPlane, yPlane, zPlane);
+    });
+    control.addEventListener('change', render);
 
-  animate();
+    //dispose
+    return () => {
+      //dispose threejs component
+      renderer.dispose();
+      document.body.removeChild(renderer.domElement);
+      control.dispose();
+      scene.current.remove(shape, gridHelper, light, control);
 
-  //event listener
-  window.addEventListener(
-    'mousemove',
-    _.throttle((event) => {
-      onPointerMove(event, camera, scene, excludeObjects, isDraw, points, socket);
-    }, 1000 / 120)
-  );
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
-  window.addEventListener('mouseup', handleMouseUp);
-  control.addEventListener('change', render);
+      //remove event listener
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('mouseup', handleMouseUp);
+      control.removeEventListener('change', render);
+    };
+  }, []);
+
   ////////////// UI ////////////////
   return (
     <>
+      <Box display="flex" justifyContent="center">
+        <Box position="absolute" backgroundColor="#081924" w="280px" m="10px" borderRadius="10px">
+          <HStack p="10px">
+            <IconButton icon={<ArrowCounterclockwise />}></IconButton>
+            <IconButton
+              onClick={() => {
+                shapeRotation(rotation, scene.current, 'x', shapeName.current);
+              }}
+              icon={<FontAwesomeIcon icon={faX} />}
+            ></IconButton>
+            <IconButton
+              onClick={() => {
+                shapeRotation(rotation, scene.current, 'y', shapeName.current);
+              }}
+              icon={<FontAwesomeIcon icon={faY} />}
+            ></IconButton>
+            <IconButton
+              onClick={() => {
+                shapeRotation(rotation, scene.current, 'z', shapeName.current);
+              }}
+              icon={<FontAwesomeIcon icon={faZ} />}
+            ></IconButton>
+            <Input
+              value={rotation}
+              onChange={(e) => {
+                setRotation(e.target.value);
+                console.log(shapeName.current);
+              }}
+              textAlign="center"
+              backgroundColor="white"
+            ></Input>
+          </HStack>
+        </Box>
+      </Box>
       <Box pos="absolute" m="10px" p="10px" backgroundColor="#081924" borderRadius="10px">
         <VStack>
           <IconButton icon={<QuestionLg />} onClick={onOpen}></IconButton>
           <Divider />
+          {/* shape button */}
           <IconButton
             icon={<BoxFill />}
             onClick={() => {
-              shapeName = changeShape('box', shapeName, scene, control);
+              shapeName.current = changeShape('box', shapeName.current, scene.current, control);
             }}
           ></IconButton>
           <IconButton
             icon={<SquareFill />}
             onClick={() => {
-              shapeName = changeShape('plane', shapeName, scene, control);
+              shapeName.current = changeShape('plane', shapeName.current, scene.current, control);
             }}
           ></IconButton>
           <IconButton
             icon={<CircleFill />}
             onClick={() => {
-              shapeName = changeShape('sphere', shapeName, scene, control);
+              shapeName.current = changeShape('sphere', shapeName.current, scene.current, control);
             }}
           ></IconButton>
+          {/* rotation button */}
           <Divider />
           <IconButton
             onClick={() => {
-              // cameraControls.lookInDirectionOf(-3, 0, 0, true);
-              fitToRect(xPlane);
+              fitToRect(xPlane, cameraControls);
             }}
             icon={<FontAwesomeIcon icon={faX} />}
           ></IconButton>
           <IconButton
             onClick={() => {
-              // cameraControls.lookInDirectionOf(0, 0, -3, true);
-              fitToRect(yPlane);
+              fitToRect(yPlane, cameraControls);
             }}
             icon={<FontAwesomeIcon icon={faY} />}
           ></IconButton>
           <IconButton
             onClick={() => {
-              // cameraControls.lookInDirectionOf(0, -3, 0, true);
-              fitToRect(zPlane);
+              fitToRect(zPlane, cameraControls);
             }}
             icon={<FontAwesomeIcon icon={faZ} />}
           ></IconButton>
