@@ -143,7 +143,10 @@ const Threejs = () => {
         lineMesh.current,
         xPlane.current,
         yPlane.current,
-        zPlane.current
+        zPlane.current,
+        reverseXPlane.current,
+        reverseYPlane.current,
+        reverseZPlane.current
       );
       isDraw.current = newIsDraw;
       points = newPoints;

@@ -12,7 +12,8 @@ export function useSceneControl(
   points,
   xPlane,
   yPlane,
-  zPlane
+  zPlane,
+  reverseXPlane
 ) {
   const handleMouseUp = () => {
     const currentShape = scene.getObjectByName(shapeName);
@@ -23,6 +24,8 @@ export function useSceneControl(
   };
 
   const handleKeyDown = (event) => {
+    let reverseState = false;
+
     switch (event.keyCode) {
       case 87: // W
         control.setMode('translate');
@@ -34,7 +37,10 @@ export function useSceneControl(
         control.setMode('scale');
         break;
       case 88: // X
-        fitToRect(xPlane, cameraControls);
+        if (reverseState) {
+          fitToRect(xPlane, cameraControls);
+        }
+        if (!reverseState) fitToRect(reverseXPlane, cameraControls);
         break;
       case 89: // Y
         fitToRect(yPlane, cameraControls);
@@ -44,6 +50,9 @@ export function useSceneControl(
         break;
       case 18: // Alt
         cameraControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+        break;
+      case 16: // Shift
+        reverseState = true;
         break;
       case 13: // Enter
         isDraw = !isDraw;
@@ -66,6 +75,9 @@ export function useSceneControl(
       // Alt
       case 18:
         cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
+        break;
+      case 16: // Shift
+        reverseState = false;
         break;
     }
   };

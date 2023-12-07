@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import _ from 'lodash';
 
+let reverseState = false;
+
 const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane) => {
   const currentShape = scene.getObjectByName(shapeName);
   const { x, y, z } = currentShape.position;
@@ -27,7 +29,10 @@ const handleKeyDown = (
   lineMesh,
   xPlane,
   yPlane,
-  zPlane
+  zPlane,
+  reverseXPlane,
+  reverseYPlane,
+  reverseZPlane
 ) => {
   switch (event.keyCode) {
     case 87: // W
@@ -41,18 +46,38 @@ const handleKeyDown = (
       break;
     case 88: //X
       console.log('x');
-      fitToRect(xPlane, cameraControls);
-      break;
-    case 89: //Y
-      console.log('y');
-      fitToRect(yPlane, cameraControls);
-      break;
+      if (reverseState) {
+        fitToRect(xPlane, cameraControls);
+        break;
+      }
+      if (!reverseState) {
+        fitToRect(reverseXPlane, cameraControls);
+        break;
+      }
+    case 67: //C
+      if (reverseState) {
+        fitToRect(yPlane, cameraControls);
+        break;
+      }
+      if (!reverseState) {
+        fitToRect(reverseYPlane, cameraControls);
+        break;
+      }
     case 90: //Z
-      console.log('z');
-      fitToRect(zPlane, cameraControls);
+      if (reverseState) {
+        fitToRect(zPlane, cameraControls);
+        break;
+      }
+      if (!reverseState) {
+        fitToRect(reverseZPlane, cameraControls);
+        break;
+      }
       break;
-    case 18: // Alt
+    case 18: //Alt
       cameraControls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+      break;
+    case 16: //Shift
+      reverseState = true;
       break;
     case 13: //Enter
       isDraw = !isDraw;
@@ -87,9 +112,11 @@ const handleKeyDown = (
 
 const handleKeyUp = (event, cameraControls, CameraControls) => {
   switch (event.keyCode) {
-    //Alt
-    case 18:
+    case 18: //Alt
       cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
+      break;
+    case 16: // Shift
+      reverseState = false;
       break;
   }
 };

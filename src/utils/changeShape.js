@@ -1,9 +1,7 @@
 import { shapeFactory } from './shapeFactory';
 
 export function changeShape(targetShape, shapeName, scene, control) {
-  //check if the shape is already exist
   let existingShape;
-  //get the current shape on the world
   let currentShape;
   switch (targetShape) {
     case 'box':
