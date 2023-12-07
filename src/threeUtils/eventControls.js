@@ -34,8 +34,8 @@ const handleKeyDown = (event, control, cameraControls, CameraControls, isDraw, s
         control.attach(currentShape);
         socket.emit('clientStopDraw');
       }
-      return { isDraw, points };
   }
+  return { isDraw, points };
 };
 
 const handleKeyUp = (event, cameraControls, CameraControls) => {

@@ -1,7 +1,6 @@
 import { MathUtils } from 'three';
 
 export function shapeRotation(rotation, scene, direction, shapeName) {
-  console.log(scene);
   const newRotation = MathUtils.degToRad(rotation);
   const convertedRotation = newRotation;
   const currentShape = scene.getObjectByName(shapeName);

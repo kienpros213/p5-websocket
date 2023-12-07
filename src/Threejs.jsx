@@ -39,17 +39,18 @@ const Threejs = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   let shapeName = useRef('plane');
   let scene = useRef();
-  let points = [];
-  let excludeObjects = [];
-  let recievedPoints = [];
-  let control = useRef();
-  let isDraw = useRef(false);
-  let cameraControls = useRef();
-  const size = 1000;
-  const divisions = 1000;
   let xPlane = useRef();
   let yPlane = useRef();
   let zPlane = useRef();
+  let control = useRef();
+  let isDraw = useRef(false);
+  let cameraControls = useRef();
+  let points = [];
+  let excludeObjects = [];
+  let recievedPoints = [];
+  const size = 1000;
+  const divisions = 1000;
+
   useEffect(() => {
     scene.current = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -156,6 +157,7 @@ const Threejs = () => {
         socket,
         points
       );
+      console.log(newIsDraw, newPoints, isDraw, points);
       isDraw.current = newIsDraw;
       points = newPoints;
     });
