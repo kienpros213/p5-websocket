@@ -25,11 +25,13 @@ const handleKeyDown = (event, control, cameraControls, CameraControls, isDraw, s
       isDraw = !isDraw;
       const currentShape = scene.getObjectByName(shapeName);
       if (isDraw) {
-        control.attach(currentShape);
-        socket.emit('clientStartDraw');
         points = [];
-      } else {
         control.detach(currentShape);
+
+        socket.emit('clientStartDraw');
+      }
+      if (!isDraw) {
+        control.attach(currentShape);
         socket.emit('clientStopDraw');
       }
       return { isDraw, points };

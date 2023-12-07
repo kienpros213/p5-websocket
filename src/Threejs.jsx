@@ -28,17 +28,17 @@ socket.on('connect', () => {
 const Threejs = () => {
   const clock = new THREE.Clock();
   const [rotation, setRotation] = useState(30);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   let shapeName = useRef('plane');
+  let scene = useRef();
   let points = [];
+  let excludeObjects = [];
   let recievedPoints = [];
   let control;
   let isDraw = false;
-  let excludeObjects = [];
   let cameraControls;
   const size = 1000;
   const divisions = 1000;
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  let scene = useRef();
   let xPlane, yPlane, zPlane;
   useEffect(() => {
     scene.current = new THREE.Scene();
