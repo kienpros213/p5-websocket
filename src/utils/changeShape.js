@@ -59,6 +59,24 @@ export function changeShape(targetShape, shapeName, scene, control) {
       control.attach(newSphere);
       break;
 
+    case 'cone':
+      currentShape = scene.getObjectByName(shapeName);
+      existingShape = scene.getObjectByName('cone');
+      shapeName = 'cone';
+      if (existingShape) {
+        existingShape.geometry.dispose();
+        scene.remove(existingShape);
+      } else {
+        currentShape.geometry.dispose();
+        scene.remove(currentShape);
+      }
+
+      const newCone = shapeFactory(shapeName);
+      newCone.name = 'cone';
+      scene.add(newCone);
+      control.attach(newCone);
+      break;
+
     default:
       console.log('Unsupported shape:', targetShape);
   }

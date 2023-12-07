@@ -1,4 +1,4 @@
-import { Box, Plane, Sphere } from '../shape/Shape';
+import { Box, Cone, Plane, Sphere } from '../shape/Shape';
 
 export function shapeFactory(shape) {
   switch (shape) {
@@ -8,5 +8,7 @@ export function shapeFactory(shape) {
       return Plane();
     case 'sphere':
       return Sphere();
+    case 'cone':
+      return Cone();
   }
 }

@@ -1,10 +1,18 @@
 import * as THREE from 'three';
+import { MathUtils } from 'three';
 import _ from 'lodash';
 import HelpModal from './components/HelpModal';
 import CameraControls from 'camera-controls';
 import { io } from 'socket.io-client';
 import { VStack, Box, IconButton, Divider, useDisclosure, HStack, Input } from '@chakra-ui/react';
-import { BoxFill, CircleFill, SquareFill, QuestionLg, ArrowCounterclockwise } from 'react-bootstrap-icons';
+import {
+  BoxFill,
+  CircleFill,
+  SquareFill,
+  QuestionLg,
+  ArrowCounterclockwise,
+  TriangleFill
+} from 'react-bootstrap-icons';
 import { createLight, createPlane } from './utils/utilsConstructor';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { changeShape } from './utils/changeShape';
@@ -34,12 +42,14 @@ const Threejs = () => {
   let points = [];
   let excludeObjects = [];
   let recievedPoints = [];
-  let control;
-  let isDraw = false;
-  let cameraControls;
+  let control = useRef();
+  let isDraw = useRef(false);
+  let cameraControls = useRef();
   const size = 1000;
   const divisions = 1000;
-  let xPlane, yPlane, zPlane;
+  let xPlane = useRef();
+  let yPlane = useRef();
+  let zPlane = useRef();
   useEffect(() => {
     scene.current = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -63,27 +73,31 @@ const Threejs = () => {
     shape.name = 'plane';
 
     //camera plane
+
+    const newRotation = MathUtils.degToRad(90);
+    const convertedRotation = newRotation;
+
     //red
-    xPlane = cameraPlane('#d62222');
-    xPlane.position.set(6, 0, 0);
-    xPlane.rotation.set(0, -1.57079633, 0);
+    xPlane.current = cameraPlane('#d62222');
+    xPlane.current.position.set(6, 0, 0);
+    xPlane.current.rotation.set(0, -convertedRotation, 0);
     //blue
-    yPlane = cameraPlane('#1c12a3');
-    yPlane.position.set(0, 0, 6);
-    yPlane.rotation.set(0, 3.14159265, 0);
+    yPlane.current = cameraPlane('#1c12a3');
+    yPlane.current.position.set(0, 6, 0);
+    yPlane.current.rotation.set(convertedRotation, 0, 0);
 
     //green
-    zPlane = cameraPlane('#23db39');
-    zPlane.position.set(0, 6, 0);
-    zPlane.rotation.set(1.57079633, 0, 0);
+    zPlane.current = cameraPlane('#23db39');
+    zPlane.current.position.set(0, 0, 6);
+    zPlane.current.rotation.set(0, 2 * convertedRotation, 0);
 
     //transform control
-    control = new TransformControls(camera, renderer.domElement);
-    control.attach(shape);
+    control.current = new TransformControls(camera, renderer.domElement);
+    control.current.attach(shape);
 
     //orbit control
-    cameraControls = new CameraControls(camera, renderer.domElement);
-    cameraControls.mouseButtons.left = CameraControls.ACTION.NONE;
+    cameraControls.current = new CameraControls(camera, renderer.domElement);
+    cameraControls.current.mouseButtons.left = CameraControls.ACTION.NONE;
 
     //fog
     const fogColor = new THREE.Color(0xffffff);
@@ -91,8 +105,8 @@ const Threejs = () => {
     scene.current.fog = new THREE.Fog(fogColor, 1, 50);
 
     //add stuff
-    scene.current.add(shape, gridHelper, light, control);
-    excludeObjects.push(control, gridHelper);
+    scene.current.add(shape, gridHelper, light, control.current);
+    excludeObjects.push(control.current, gridHelper);
 
     //render function
     function render() {
@@ -115,7 +129,7 @@ const Threejs = () => {
 
     function animate() {
       const delta = clock.getDelta();
-      cameraControls.update(delta);
+      cameraControls.current.update(delta);
       requestAnimationFrame(animate);
       render();
     }
@@ -126,48 +140,48 @@ const Threejs = () => {
     window.addEventListener(
       'mousemove',
       _.throttle((e) => {
-        onPointerMove(e, camera, scene.current, excludeObjects, isDraw, points, socket);
+        onPointerMove(e, camera, scene.current, excludeObjects, isDraw.current, points, socket);
       }, 1000 / 120)
     );
     //key down
     window.addEventListener('keydown', (e) => {
       const { isDraw: newIsDraw, points: newPoints } = handleKeyDown(
         e,
-        control,
-        cameraControls,
+        control.current,
+        cameraControls.current,
         CameraControls,
-        isDraw,
+        isDraw.current,
         scene.current,
         shapeName.current,
         socket,
         points
       );
-      isDraw = newIsDraw;
+      isDraw.current = newIsDraw;
       points = newPoints;
     });
     //key up
     window.addEventListener('keyup', (e) => {
-      handleKeyUp(e, cameraControls, CameraControls);
+      handleKeyUp(e, cameraControls.current, CameraControls);
     });
     //mouse up
     window.addEventListener('mouseup', () => {
-      handleMouseUp(scene.current, shapeName.current, xPlane, yPlane, zPlane);
+      handleMouseUp(scene.current, shapeName.current, xPlane.current, yPlane.current, zPlane.current);
     });
-    control.addEventListener('change', render);
+    control.current.addEventListener('change', render);
 
     //dispose
     return () => {
       //dispose threejs component
       renderer.dispose();
       document.body.removeChild(renderer.domElement);
-      control.dispose();
-      scene.current.remove(shape, gridHelper, light, control);
+      control.current.dispose();
+      scene.current.remove(shape, gridHelper, light, control.current);
 
       //remove event listener
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      window.removeEventListener('mouseup', handleMouseUp);
-      control.removeEventListener('change', render);
+      // window.removeEventListener('mouseup', handleMouseUp);
+      control.current.removeEventListener('change', render);
     };
   }, []);
 
@@ -177,7 +191,12 @@ const Threejs = () => {
       <Box display="flex" justifyContent="center">
         <Box position="absolute" backgroundColor="#081924" w="280px" m="10px" borderRadius="10px">
           <HStack p="10px">
-            <IconButton icon={<ArrowCounterclockwise />}></IconButton>
+            <IconButton
+              onClick={() => {
+                shapeRotation(rotation, scene.current, 'all', shapeName.current);
+              }}
+              icon={<ArrowCounterclockwise />}
+            ></IconButton>
             <IconButton
               onClick={() => {
                 shapeRotation(rotation, scene.current, 'x', shapeName.current);
@@ -216,38 +235,44 @@ const Threejs = () => {
           <IconButton
             icon={<BoxFill />}
             onClick={() => {
-              shapeName.current = changeShape('box', shapeName.current, scene.current, control);
+              shapeName.current = changeShape('box', shapeName.current, scene.current, control.current);
             }}
           ></IconButton>
           <IconButton
             icon={<SquareFill />}
             onClick={() => {
-              shapeName.current = changeShape('plane', shapeName.current, scene.current, control);
+              shapeName.current = changeShape('plane', shapeName.current, scene.current, control.current);
             }}
           ></IconButton>
           <IconButton
             icon={<CircleFill />}
             onClick={() => {
-              shapeName.current = changeShape('sphere', shapeName.current, scene.current, control);
+              shapeName.current = changeShape('sphere', shapeName.current, scene.current, control.current);
+            }}
+          ></IconButton>
+          <IconButton
+            icon={<TriangleFill />}
+            onClick={() => {
+              shapeName.current = changeShape('cone', shapeName.current, scene.current, control.current);
             }}
           ></IconButton>
           {/* rotation button */}
           <Divider />
           <IconButton
             onClick={() => {
-              fitToRect(xPlane, cameraControls);
+              fitToRect(xPlane.current, cameraControls.current);
             }}
             icon={<FontAwesomeIcon icon={faX} />}
           ></IconButton>
           <IconButton
             onClick={() => {
-              fitToRect(yPlane, cameraControls);
+              fitToRect(yPlane.current, cameraControls.current);
             }}
             icon={<FontAwesomeIcon icon={faY} />}
           ></IconButton>
           <IconButton
             onClick={() => {
-              fitToRect(zPlane, cameraControls);
+              fitToRect(zPlane.current, cameraControls.current);
             }}
             icon={<FontAwesomeIcon icon={faZ} />}
           ></IconButton>

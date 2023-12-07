@@ -27,3 +27,10 @@ export function Sphere() {
   const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
   return sphere;
 }
+
+export function Cone() {
+  const coneGeometry = new THREE.ConeGeometry(3, 5, 32);
+  const coneMaterial = new THREE.MeshStandardMaterial({ color: '#34aeeb', transparent: true });
+  const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+  return cone;
+}

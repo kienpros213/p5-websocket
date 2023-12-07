@@ -3,8 +3,8 @@ const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane) => {
   const currentShape = scene.getObjectByName(shapeName);
   const { x, y, z } = currentShape.position;
   xPlane.position.set(x + 6, y, z);
-  yPlane.position.set(x, y, z + 6);
-  zPlane.position.set(x, y + 6, z);
+  yPlane.position.set(x, y + 6, z);
+  zPlane.position.set(x, y, z + 6);
 };
 
 const handleKeyDown = (event, control, cameraControls, CameraControls, isDraw, scene, shapeName, socket, points) => {
