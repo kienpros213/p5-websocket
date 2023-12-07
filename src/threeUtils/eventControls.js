@@ -1,5 +1,8 @@
 import { fitToRect } from './fitToRect';
+import * as THREE from 'three';
+import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import _ from 'lodash';
+
 const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane) => {
   const currentShape = scene.getObjectByName(shapeName);
   const { x, y, z } = currentShape.position;
@@ -21,6 +24,7 @@ const handleKeyDown = (
   shapeName,
   socket,
   points,
+  lineMesh,
   xPlane,
   yPlane,
   zPlane
@@ -53,6 +57,20 @@ const handleKeyDown = (
     case 13: //Enter
       isDraw = !isDraw;
       const currentShape = scene.getObjectByName(shapeName);
+
+      const drawLine = new MeshLineGeometry();
+      const drawLineMaterial = new MeshLineMaterial({
+        color: '#eb4034',
+        lineWidth: 0.1
+      });
+      drawLineMaterial.polygonOffset = true;
+      drawLineMaterial.polygonOffsetUnit = 10;
+      drawLineMaterial.polygonOffsetFactor = 10;
+
+      const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
+      lineMesh = drawLine;
+      scene.add(drawLineMesh);
+
       if (isDraw) {
         points = [];
         control.detach(currentShape);
@@ -64,7 +82,7 @@ const handleKeyDown = (
         socket.emit('clientStopDraw');
       }
   }
-  return { isDraw, points };
+  return { isDraw, points, lineMesh };
 };
 
 const handleKeyUp = (event, cameraControls, CameraControls) => {

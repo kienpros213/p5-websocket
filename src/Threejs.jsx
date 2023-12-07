@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { MathUtils } from 'three';
 import _ from 'lodash';
 import HelpModal from './components/HelpModal';
 import CameraControls from 'camera-controls';
@@ -41,6 +40,7 @@ const Threejs = () => {
   let scene = useRef();
   let control = useRef();
   let isDraw = useRef(false);
+  let lineMesh = useRef();
   let cameraControls = useRef();
   const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
   let points = [];
@@ -121,12 +121,16 @@ const Threejs = () => {
     window.addEventListener(
       'mousemove',
       _.throttle((e) => {
-        onPointerMove(e, camera, scene.current, excludeObjects, isDraw.current, points, socket);
+        onPointerMove(e, camera, scene.current, excludeObjects, isDraw.current, points, socket, lineMesh.current);
       }, 1000 / 120)
     );
     //key down
     window.addEventListener('keydown', (e) => {
-      const { isDraw: newIsDraw, points: newPoints } = handleKeyDown(
+      const {
+        isDraw: newIsDraw,
+        points: newPoints,
+        lineMesh: newLineMesh
+      } = handleKeyDown(
         e,
         control.current,
         cameraControls.current,
@@ -136,12 +140,14 @@ const Threejs = () => {
         shapeName.current,
         socket,
         points,
+        lineMesh.current,
         xPlane.current,
         yPlane.current,
         zPlane.current
       );
       isDraw.current = newIsDraw;
       points = newPoints;
+      lineMesh.current = newLineMesh;
     });
     //key up
     window.addEventListener('keyup', (e) => {
@@ -272,18 +278,21 @@ const Threejs = () => {
           <Divider />
           {/* reverse rotation button */}
           <IconButton
+            bg="#f23350"
             onClick={() => {
               fitToRect(reverseXPlane.current, cameraControls.current);
             }}
             icon={<FontAwesomeIcon icon={faX} />}
           ></IconButton>
           <IconButton
+            bg="#f23350"
             onClick={() => {
               fitToRect(reverseYPlane.current, cameraControls.current);
             }}
             icon={<FontAwesomeIcon icon={faY} />}
           ></IconButton>
           <IconButton
+            bg="#f23350"
             onClick={() => {
               fitToRect(reverseZPlane.current, cameraControls.current);
             }}
