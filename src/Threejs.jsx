@@ -21,10 +21,10 @@ import { threeSocketListener } from './threeUtils/threeSocketListener';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
 import { fitToRect } from './threeUtils/fitToRect';
-import { cameraPlane } from './threeUtils/cameraPlane';
 import { useEffect, useRef, useState } from 'react';
 import { handleMouseUp, handleKeyUp, handleKeyDown } from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
+import { useCameraPlane } from './threeUtils/useCameraPlane';
 
 CameraControls.install({ THREE: THREE });
 
@@ -39,12 +39,10 @@ const Threejs = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   let shapeName = useRef('plane');
   let scene = useRef();
-  let xPlane = useRef();
-  let yPlane = useRef();
-  let zPlane = useRef();
   let control = useRef();
   let isDraw = useRef(false);
   let cameraControls = useRef();
+  const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
   let points = [];
   let excludeObjects = [];
   let recievedPoints = [];
@@ -56,6 +54,7 @@ const Threejs = () => {
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     camera.position.z = 8;
+    camera.position.y = 8;
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       logarithmicDepthBuffer: true
@@ -72,25 +71,6 @@ const Threejs = () => {
     //mesh
     const shape = createPlane(5, 5, '#34aeeb');
     shape.name = 'plane';
-
-    //camera plane
-
-    const newRotation = MathUtils.degToRad(90);
-    const convertedRotation = newRotation;
-
-    //red
-    xPlane.current = cameraPlane('#d62222');
-    xPlane.current.position.set(6, 0, 0);
-    xPlane.current.rotation.set(0, -convertedRotation, 0);
-    //blue
-    yPlane.current = cameraPlane('#1c12a3');
-    yPlane.current.position.set(0, 6, 0);
-    yPlane.current.rotation.set(convertedRotation, 0, 0);
-
-    //green
-    zPlane.current = cameraPlane('#23db39');
-    zPlane.current.position.set(0, 0, 6);
-    zPlane.current.rotation.set(0, 2 * convertedRotation, 0);
 
     //transform control
     control.current = new TransformControls(camera, renderer.domElement);
@@ -169,7 +149,16 @@ const Threejs = () => {
     });
     //mouse up
     window.addEventListener('mouseup', () => {
-      handleMouseUp(scene.current, shapeName.current, xPlane.current, yPlane.current, zPlane.current);
+      handleMouseUp(
+        scene.current,
+        shapeName.current,
+        xPlane.current,
+        yPlane.current,
+        zPlane.current,
+        reverseXPlane.current,
+        reverseYPlane.current,
+        reverseZPlane.current
+      );
     });
     control.current.addEventListener('change', render);
 
@@ -184,7 +173,7 @@ const Threejs = () => {
       //remove event listener
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      // window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleMouseUp);
       control.current.removeEventListener('change', render);
     };
   }, []);
@@ -277,6 +266,26 @@ const Threejs = () => {
           <IconButton
             onClick={() => {
               fitToRect(zPlane.current, cameraControls.current);
+            }}
+            icon={<FontAwesomeIcon icon={faZ} />}
+          ></IconButton>
+          <Divider />
+          {/* reverse rotation button */}
+          <IconButton
+            onClick={() => {
+              fitToRect(reverseXPlane.current, cameraControls.current);
+            }}
+            icon={<FontAwesomeIcon icon={faX} />}
+          ></IconButton>
+          <IconButton
+            onClick={() => {
+              fitToRect(reverseYPlane.current, cameraControls.current);
+            }}
+            icon={<FontAwesomeIcon icon={faY} />}
+          ></IconButton>
+          <IconButton
+            onClick={() => {
+              fitToRect(reverseZPlane.current, cameraControls.current);
             }}
             icon={<FontAwesomeIcon icon={faZ} />}
           ></IconButton>

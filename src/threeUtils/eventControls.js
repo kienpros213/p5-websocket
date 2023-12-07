@@ -1,11 +1,14 @@
 import { fitToRect } from './fitToRect';
 import _ from 'lodash';
-const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane) => {
+const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane) => {
   const currentShape = scene.getObjectByName(shapeName);
   const { x, y, z } = currentShape.position;
   xPlane.position.set(x + 6, y, z);
   yPlane.position.set(x, y + 6, z);
   zPlane.position.set(x, y, z + 6);
+  reverseXPlane.position.set(x + -6, y, z);
+  reverseYPlane.position.set(x, y + -6, z);
+  reverseZPlane.position.set(x, y, z + -6);
 };
 
 const handleKeyDown = (
