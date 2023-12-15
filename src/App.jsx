@@ -5,14 +5,24 @@ import RoomPanel from './components/RoomPanel';
 import Login from './components/Login';
 import { ToastContainer } from 'react-toastify';
 import Threejs from './Threejs';
+import { io } from 'socket.io-client';
 
 const App = () => {
   const [socket, setSocket] = useState();
   const [room, setRoom] = useState();
   const [online, setOnline] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [username, setUsername] = useState('');
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      const initSocket = io('ws://localhost:3000');
+      setSocket(initSocket);
+      initSocket.on('connect', () => {
+        console.log('WebSocket connected');
+      });
+    }
+  }, [isLoggedIn]);
   if (!isLoggedIn) {
     return (
       <ChakraProvider>
@@ -32,13 +42,12 @@ const App = () => {
       </ChakraProvider>
     );
   }
-  console.log(username);
   return (
     <ChakraProvider>
       <Box pos="absolute" display="flex" right="0px" bottom="50vh" zIndex="2">
         <RoomPanel socket={socket} room={room} setRoom={setRoom} online={online} />
       </Box>
-      <Threejs username={username} setOnline={setOnline} />
+      <Threejs socket={socket} username={username} setOnline={setOnline} />
     </ChakraProvider>
   );
 };

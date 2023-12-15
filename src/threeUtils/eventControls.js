@@ -81,6 +81,7 @@ const handleKeyDown = (
       break;
     case 13: //Enter
       isDraw = !isDraw;
+      console.log(isDraw);
       const currentShape = scene.getObjectByName(shapeName);
 
       const drawLine = new MeshLineGeometry();
@@ -101,12 +102,15 @@ const handleKeyDown = (
       if (isDraw) {
         points = [];
         control.detach(currentShape);
-
-        socket.emit('clientStartDraw');
+        if (socket) {
+          socket.emit('clientStartDraw');
+        }
       }
       if (!isDraw) {
         control.attach(currentShape);
-        socket.emit('clientStopDraw');
+        if (socket) {
+          socket.emit('clientStopDraw');
+        }
       }
   }
   return { isDraw, points, lineMesh };

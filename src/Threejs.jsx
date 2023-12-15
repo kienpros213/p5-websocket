@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import _ from 'lodash';
 import HelpModal from './components/HelpModal';
 import CameraControls from 'camera-controls';
-import { io } from 'socket.io-client';
 import { VStack, Box, IconButton, Divider, useDisclosure, HStack, Input } from '@chakra-ui/react';
 import {
   BoxFill,
@@ -27,24 +26,20 @@ import { useCameraPlane } from './threeUtils/useCameraPlane';
 
 CameraControls.install({ THREE: THREE });
 
-const socket = io('ws://localhost:3000');
-socket.on('connect', () => {
-  console.log('WebSocket connected');
-});
-
-const Threejs = () => {
+const Threejs = (props) => {
+  const socket = props.socket;
   const clock = new THREE.Clock();
   const [rotation, setRotation] = useState(90);
   const { isOpen, onOpen, onClose } = useDisclosure();
   let shapeName = useRef('plane');
   let scene = useRef();
   let control = useRef();
-  let isDraw = useRef(false);
+  let isDraw = false;
   let lineMesh = useRef();
   let cameraControls = useRef();
   const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
   let points = [];
-  let excludeObjects = [];
+  let excludeObjects = useRef([]);
   let recievedPoints = [];
   const size = 1000;
   const divisions = 1000;
@@ -87,7 +82,7 @@ const Threejs = () => {
 
     //add stuff
     scene.current.add(shape, gridHelper, light, control.current);
-    excludeObjects.push(control.current, gridHelper);
+    excludeObjects.current.push(control.current, gridHelper);
 
     //render function
     function render() {
@@ -95,18 +90,20 @@ const Threejs = () => {
     }
 
     //update function
-    socket.on(
-      'serverThree',
-      _.throttle((payload) => {
-        threeSocketListener(scene.current, payload, recievedPoints);
-      }, 1000 / 120)
-    );
+    if (socket) {
+      socket.on(
+        'serverThree',
+        _.throttle((payload) => {
+          threeSocketListener(scene.current, payload, recievedPoints);
+        }, 1000 / 120)
+      );
 
-    socket.on('serverStopDraw', (payload) => {
-      console.log(payload);
-      const existObject = recievedPoints.find((obj) => obj.id === payload);
-      existObject.data = [];
-    });
+      socket.on('serverStopDraw', (payload) => {
+        console.log(payload);
+        const existObject = recievedPoints.find((obj) => obj.id === payload);
+        existObject.data = [];
+      });
+    }
 
     function animate() {
       const delta = clock.getDelta();
@@ -121,7 +118,7 @@ const Threejs = () => {
     window.addEventListener(
       'mousemove',
       _.throttle((e) => {
-        onPointerMove(e, camera, scene.current, excludeObjects, isDraw.current, points, socket, lineMesh.current);
+        onPointerMove(e, camera, scene.current, excludeObjects.current, isDraw, points, socket, lineMesh.current);
       }, 1000 / 120)
     );
     //key down
@@ -135,7 +132,7 @@ const Threejs = () => {
         control.current,
         cameraControls.current,
         CameraControls,
-        isDraw.current,
+        isDraw,
         scene.current,
         shapeName.current,
         socket,
@@ -148,7 +145,7 @@ const Threejs = () => {
         reverseYPlane.current,
         reverseZPlane.current
       );
-      isDraw.current = newIsDraw;
+      isDraw = newIsDraw;
       points = newPoints;
       lineMesh.current = newLineMesh;
     });
@@ -185,7 +182,7 @@ const Threejs = () => {
       window.removeEventListener('mouseup', handleMouseUp);
       control.current.removeEventListener('change', render);
     };
-  }, []);
+  }, [props.socket]);
 
   ////////////// UI ////////////////
   return (
