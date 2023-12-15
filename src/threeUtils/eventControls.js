@@ -25,6 +25,7 @@ const handleKeyDown = (
   scene,
   shapeName,
   socket,
+  room,
   points,
   lineMesh,
   xPlane,
@@ -102,14 +103,11 @@ const handleKeyDown = (
       if (isDraw) {
         points = [];
         control.detach(currentShape);
-        if (socket) {
-          socket.emit('clientStartDraw');
-        }
       }
       if (!isDraw) {
         control.attach(currentShape);
         if (socket) {
-          socket.emit('clientStopDraw');
+          socket.emit('clientStopDraw', room);
         }
       }
   }

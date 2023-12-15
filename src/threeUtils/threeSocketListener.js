@@ -3,6 +3,7 @@ import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 
 export function threeSocketListener(scene, payload, recievedPoints) {
   const { id, data } = payload;
+  console.log(recievedPoints);
   const existObject = recievedPoints.find((obj) => obj.id === id);
 
   if (existObject) {
