@@ -18,7 +18,8 @@ export function useCameraPlane() {
   const planeMaterial = new THREE.MeshStandardMaterial({
     color: '#d62222',
     side: THREE.DoubleSide,
-    transparent: true
+    transparent: true,
+    opacity: 0.5
   });
   xPlane.current = new THREE.Mesh(planeGeometry, planeMaterial);
   yPlane.current = new THREE.Mesh(planeGeometry, planeMaterial);

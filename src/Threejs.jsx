@@ -34,7 +34,7 @@ socket.on('connect', () => {
 
 const Threejs = () => {
   const clock = new THREE.Clock();
-  const [rotation, setRotation] = useState(30);
+  const [rotation, setRotation] = useState(90);
   const { isOpen, onOpen, onClose } = useDisclosure();
   let shapeName = useRef('plane');
   let scene = useRef();

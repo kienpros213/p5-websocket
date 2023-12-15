@@ -89,10 +89,12 @@ const handleKeyDown = (
         lineWidth: 0.1
       });
       drawLineMaterial.polygonOffset = true;
-      drawLineMaterial.polygonOffsetUnit = 10;
-      drawLineMaterial.polygonOffsetFactor = 10;
+      drawLineMaterial.polygonOffsetUnit = 1;
+      drawLineMaterial.polygonOffsetFactor = 1;
+      drawLineMaterial.blending = THREE.NormalBlending;
 
       const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
+      drawLineMesh.renderOrder = 1;
       lineMesh = drawLine;
       scene.add(drawLineMesh);
 

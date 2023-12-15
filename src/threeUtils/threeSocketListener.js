@@ -24,8 +24,5 @@ export function threeSocketListener(scene, payload, recievedPoints) {
   const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
   scene.add(drawLineMesh);
 
-  console.log(recievedPoints);
-
-  // recievedPoint.push(drawPos);
   drawLine.setPoints(existObject.data.flat());
 }

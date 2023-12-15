@@ -31,7 +31,17 @@ function RoomPanel(props) {
         variant="ghost"
         onClick={onOpen}
       />
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={btnRef}>
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={onClose}
+        finalFocusRef={btnRef}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.stopPropagation();
+          }
+        }}
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader paddingBottom="auto">Room</DrawerHeader>

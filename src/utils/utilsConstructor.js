@@ -2,7 +2,6 @@ import * as THREE from 'three';
 
 export function createLight() {
   const light = new THREE.AmbientLight(0x404040); // soft white light
-  // light.position.set(2, 2, 2);
   return light;
 }
 
@@ -17,8 +16,11 @@ export function createPlane(width, height, color) {
   const planeGeometry = new THREE.PlaneGeometry(width, height);
   const planeMaterial = new THREE.MeshStandardMaterial({
     color: color,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.8
   });
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  plane.renderOrder = 2;
   return plane;
 }

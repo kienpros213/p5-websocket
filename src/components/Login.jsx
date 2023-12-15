@@ -84,7 +84,31 @@ function Login(props) {
           <Button
             onClick={async () => {
               if (!isOpen) {
-                SendLoginRequest(props.username, password, props.setIsLoggedIn);
+                const loginResponse = await SendLoginRequest(props.username, password, props.setIsLoggedIn);
+                console.log(loginResponse);
+                if (loginResponse.error) {
+                  toast.error('' + loginResponse.error + '', {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: 'light'
+                  });
+                } else if (loginResponse.success) {
+                  toast.success('' + loginResponse.success + '', {
+                    position: 'top-center',
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: 'light'
+                  });
+                }
               } else {
                 const registerResponse = await SendRegisterRequest(props.username, password, email);
                 if (registerResponse.error) {
@@ -118,11 +142,11 @@ function Login(props) {
           <Text color="#A5D7E8">
             Don't have an account ?
             <Link onClick={onToggle} color="teal.500" href="#">
-              that kinda gay, you know
+              don't have an account
             </Link>
           </Text>
         </HStack>
-        <FormHelperText color="#A5D7E8">We'll never share your email, maybe.</FormHelperText>
+        {/* <FormHelperText color="#A5D7E8">We'll never share your email, maybe.</FormHelperText> */}
       </FormControl>
     </Box>
   );
