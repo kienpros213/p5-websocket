@@ -47,7 +47,7 @@ const App = () => {
       <Box pos="absolute" display="flex" right="0px" bottom="50vh" zIndex="2">
         <RoomPanel socket={socket} room={room} setRoom={setRoom} online={online} />
       </Box>
-      <Threejs socket={socket} username={username} setOnline={setOnline} />
+      <Threejs socket={socket} username={username} setOnline={setOnline} room={room} />
     </ChakraProvider>
   );
 };

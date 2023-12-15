@@ -27,26 +27,30 @@ import { useCameraPlane } from './threeUtils/useCameraPlane';
 CameraControls.install({ THREE: THREE });
 
 const Threejs = (props) => {
-  const socket = props.socket;
   const clock = new THREE.Clock();
   const [rotation, setRotation] = useState(90);
   const { isOpen, onOpen, onClose } = useDisclosure();
   let shapeName = useRef('plane');
   let scene = useRef();
   let control = useRef();
-  let isDraw = false;
+  let socket = useRef();
+  let room = useRef();
   let lineMesh = useRef();
   let cameraControls = useRef();
-  const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
-  let points = [];
   let excludeObjects = useRef([]);
+  const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
+  let isDraw = false;
+  let points = [];
   let recievedPoints = [];
   const size = 1000;
   const divisions = 1000;
+  let camera;
 
   useEffect(() => {
+    socket.current = props.socket;
+    room.current = props.room;
     scene.current = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     camera.position.z = 8;
     camera.position.y = 8;
@@ -90,15 +94,15 @@ const Threejs = (props) => {
     }
 
     //update function
-    if (socket) {
-      socket.on(
+    if (props.socket) {
+      props.socket.on(
         'serverThree',
         _.throttle((payload) => {
           threeSocketListener(scene.current, payload, recievedPoints);
         }, 1000 / 120)
       );
 
-      socket.on('serverStopDraw', (payload) => {
+      props.socket.on('serverStopDraw', (payload) => {
         console.log(payload);
         const existObject = recievedPoints.find((obj) => obj.id === payload);
         existObject.data = [];
@@ -114,11 +118,36 @@ const Threejs = (props) => {
 
     animate();
 
+    control.current.addEventListener('change', render);
+
+    //dispose
+    return () => {
+      // Dispose of the renderer, event listeners, and transform control
+      renderer.dispose();
+      document.body.removeChild(renderer.domElement);
+      control.current.dispose();
+
+      control.current.removeEventListener('change', render);
+    };
+  }, [props.socket, props.room]);
+
+  useEffect(() => {
     //mouse move
     window.addEventListener(
       'mousemove',
       _.throttle((e) => {
-        onPointerMove(e, camera, scene.current, excludeObjects.current, isDraw, points, socket, lineMesh.current);
+        console.log(socket.current);
+        onPointerMove(
+          e,
+          camera,
+          scene.current,
+          excludeObjects.current,
+          isDraw,
+          points,
+          socket.current,
+          lineMesh.current,
+          room.current
+        );
       }, 1000 / 120)
     );
     //key down
@@ -135,7 +164,7 @@ const Threejs = (props) => {
         isDraw,
         scene.current,
         shapeName.current,
-        socket,
+        socket.current,
         points,
         lineMesh.current,
         xPlane.current,
@@ -166,23 +195,13 @@ const Threejs = (props) => {
         reverseZPlane.current
       );
     });
-    control.current.addEventListener('change', render);
 
-    //dispose
     return () => {
-      //dispose threejs component
-      renderer.dispose();
-      document.body.removeChild(renderer.domElement);
-      control.current.dispose();
-      scene.current.remove(shape, gridHelper, light, control.current);
-
-      //remove event listener
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mouseup', handleMouseUp);
-      control.current.removeEventListener('change', render);
     };
-  }, [props.socket]);
+  }, []);
 
   ////////////// UI ////////////////
   return (

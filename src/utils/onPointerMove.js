@@ -4,7 +4,7 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 let drawPos = new THREE.Vector3();
 
-export function onPointerMove(event, camera, scene, excludeObjects, isDraw, points, socket, lineMesh) {
+export function onPointerMove(event, camera, scene, excludeObjects, isDraw, points, socket, lineMesh, room) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -15,8 +15,12 @@ export function onPointerMove(event, camera, scene, excludeObjects, isDraw, poin
   }
 
   if (isDraw) {
+    console.log(socket);
     if (socket) {
-      socket.emit('clientThree', drawPos);
+      console.log(socket);
+      // if (room) {
+      socket.emit('clientThree', { drawPos: drawPos, room: room });
+      //}
     }
     points.push(drawPos);
     lineMesh.setPoints(points.flat());
