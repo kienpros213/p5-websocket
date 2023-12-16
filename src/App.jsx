@@ -11,16 +11,30 @@ const App = () => {
   const [socket, setSocket] = useState();
   const [room, setRoom] = useState();
   const [online, setOnline] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
 
   useEffect(() => {
     if (isLoggedIn) {
       const initSocket = io('ws://localhost:3000');
       setSocket(initSocket);
+      //on socket connect
       initSocket.on('connect', () => {
         console.log('WebSocket connected');
       });
+      //on socket error
+      initSocket.on('error', (error) => {
+        console.error('WebSocket error:', error);
+      });
+      //on socket disconnect
+      initSocket.on('disconnect', () => {
+        console.log('WebSocket disconnected');
+        setSocket(null);
+      });
+
+      initSocket.emit('connected', { username: username });
+      initSocket.on('userConnected', (payload) => setOnline(payload));
+      initSocket.on('userDisconnected', (payload) => setOnline(payload));
     }
   }, [isLoggedIn]);
   if (!isLoggedIn) {

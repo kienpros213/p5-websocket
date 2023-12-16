@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from 'react';
 import { handleMouseUp, handleKeyUp, handleKeyDown } from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
+import { reDrawFunction } from './threeUtils/reDrawFunction';
 
 CameraControls.install({ THREE: THREE });
 
@@ -38,22 +39,22 @@ const Threejs = (props) => {
   let lineMesh = useRef();
   let cameraControls = useRef();
   let excludeObjects = useRef([]);
+  let recievedPoints = useRef([]);
+  let camera = useRef();
   const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
   let isDraw = false;
   let points = [];
-  let recievedPoints = useRef([]);
   const size = 1000;
   const divisions = 1000;
-  let camera;
 
   useEffect(() => {
     socket.current = props.socket;
     room.current = props.room;
     scene.current = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.current = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    camera.position.z = 8;
-    camera.position.y = 8;
+    camera.current.position.z = 8;
+    camera.current.position.y = 8;
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       logarithmicDepthBuffer: true
@@ -72,11 +73,11 @@ const Threejs = (props) => {
     shape.name = 'plane';
 
     //transform control
-    control.current = new TransformControls(camera, renderer.domElement);
+    control.current = new TransformControls(camera.current, renderer.domElement);
     control.current.attach(shape);
 
     //orbit control
-    cameraControls.current = new CameraControls(camera, renderer.domElement);
+    cameraControls.current = new CameraControls(camera.current, renderer.domElement);
     cameraControls.current.mouseButtons.left = CameraControls.ACTION.NONE;
 
     //fog
@@ -90,7 +91,7 @@ const Threejs = (props) => {
 
     //render function
     function render() {
-      renderer.render(scene.current, camera);
+      renderer.render(scene.current, camera.current);
     }
 
     //update function
@@ -103,9 +104,26 @@ const Threejs = (props) => {
       );
 
       props.socket.on('serverStopDraw', (payload) => {
+        console.log(recievedPoints.current);
         console.log('stop');
         const existObject = recievedPoints.current.find((obj) => obj.id === payload);
         existObject.data = [];
+      });
+
+      props.socket.on('roomJoined', (payload) => {
+        let drawState = [];
+        const shapeIndex = payload.shapeIndex;
+        const shape = payload.drawState[0];
+        // console.log(typeof shape[0]);
+        // console.log(payload.drawState);
+        // console.log(shape[1]);
+        // console.log(typeof shape[1]);
+        for (let i = 0; i < shapeIndex; i++) {
+          // drawState.push(payload.drawState[shapeIndex]);
+          // console.log(typeof payload.drawState[i]);
+          reDrawFunction(scene.current, payload.drawState[i]);
+          console.log(drawState);
+        }
       });
     }
 
@@ -124,6 +142,7 @@ const Threejs = (props) => {
     return () => {
       // Dispose of the renderer, event listeners, and transform control
       if (props.socket) {
+        props.socket.off('roomJoined');
         props.socket.off('serverThree');
         props.socket.off('serverStopDraw');
       }
@@ -141,7 +160,7 @@ const Threejs = (props) => {
       _.throttle((e) => {
         onPointerMove(
           e,
-          camera,
+          camera.current,
           scene.current,
           excludeObjects.current,
           isDraw,

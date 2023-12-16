@@ -1,17 +1,7 @@
 import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 
-export function threeSocketListener(scene, payload, recievedPoints) {
-  const { id, data } = payload;
-  const existObject = recievedPoints.find((obj) => obj.id === id);
-  if (existObject) {
-    existObject.data.push(data);
-    console.log(existObject.data.flat(Infinity));
-  } else {
-    const newObject = { id: id, data: data };
-    recievedPoints.push(newObject);
-  }
-
+export function reDrawFunction(scene, recievedPoints) {
   //line mesh setup
   const drawLine = new MeshLineGeometry();
   const drawLineMaterial = new MeshLineMaterial({
@@ -24,5 +14,5 @@ export function threeSocketListener(scene, payload, recievedPoints) {
   const drawLineMesh = new THREE.Mesh(drawLine, drawLineMaterial);
   scene.add(drawLineMesh);
 
-  drawLine.setPoints(existObject.data.flat(Infinity));
+  drawLine.setPoints(recievedPoints);
 }
