@@ -11,7 +11,7 @@ const App = () => {
   const [socket, setSocket] = useState();
   const [room, setRoom] = useState();
   const [online, setOnline] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [username, setUsername] = useState('');
 
   useEffect(() => {

@@ -20,7 +20,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
 import { fitToRect } from './threeUtils/fitToRect';
 import { useEffect, useRef, useState } from 'react';
-import { handleMouseUp, handleKeyUp, handleKeyDown } from './threeUtils/eventControls';
+import { handleMouseUp, handleKeyUp, handleKeyDown, handlePenDraw } from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
 import { reDrawFunction } from './threeUtils/reDrawFunction';
@@ -46,6 +46,7 @@ const Threejs = (props) => {
   let points = [];
   const size = 1000;
   const divisions = 1000;
+  let penTool = false;
 
   useEffect(() => {
     socket.current = props.socket;
@@ -94,7 +95,7 @@ const Threejs = (props) => {
       renderer.render(scene.current, camera.current);
     }
 
-    //update function
+    //socket function
     if (props.socket) {
       props.socket.on(
         'serverThree',
@@ -113,20 +114,12 @@ const Threejs = (props) => {
       props.socket.on('roomJoined', (payload) => {
         let drawState = [];
         const shapeIndex = payload.shapeIndex;
-        const shape = payload.drawState[0];
-        // console.log(typeof shape[0]);
-        // console.log(payload.drawState);
-        // console.log(shape[1]);
-        // console.log(typeof shape[1]);
         for (let i = 0; i < shapeIndex; i++) {
-          // drawState.push(payload.drawState[shapeIndex]);
-          // console.log(typeof payload.drawState[i]);
           reDrawFunction(scene.current, payload.drawState[i]);
           console.log(drawState);
         }
       });
     }
-
     function animate() {
       const delta = clock.getDelta();
       cameraControls.current.update(delta);
@@ -138,7 +131,7 @@ const Threejs = (props) => {
 
     control.current.addEventListener('change', render);
 
-    //dispose
+    //clean up
     return () => {
       // Dispose of the renderer, event listeners, and transform control
       if (props.socket) {
@@ -173,11 +166,7 @@ const Threejs = (props) => {
     );
     //key down
     window.addEventListener('keydown', (e) => {
-      const {
-        isDraw: newIsDraw,
-        points: newPoints,
-        lineMesh: newLineMesh
-      } = handleKeyDown(
+      const result = handleKeyDown(
         e,
         control.current,
         cameraControls.current,
@@ -194,15 +183,22 @@ const Threejs = (props) => {
         zPlane.current,
         reverseXPlane.current,
         reverseYPlane.current,
-        reverseZPlane.current
+        reverseZPlane.current,
+        penTool
       );
-      isDraw = newIsDraw;
-      points = newPoints;
-      lineMesh.current = newLineMesh;
+      isDraw = result.isDraw;
+      points = result.points;
+      lineMesh.current = result.lineMesh;
+      penTool = result.penTool;
+      // console.log(result.penTool);
     });
     //key up
     window.addEventListener('keyup', (e) => {
       handleKeyUp(e, cameraControls.current, CameraControls);
+    });
+    //mouse down
+    window.addEventListener('mousedown', (e) => {
+      handlePenDraw(e, camera.current, scene.current, excludeObjects.current, penTool, socket.current, room.current);
     });
     //mouse up
     window.addEventListener('mouseup', () => {
@@ -219,6 +215,7 @@ const Threejs = (props) => {
     });
 
     return () => {
+      window.removeEventListener('mousedown', handlePenDraw);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mouseup', handleMouseUp);
