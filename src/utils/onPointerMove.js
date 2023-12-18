@@ -16,7 +16,7 @@ export function onPointerMove(event, camera, scene, excludeObjects, isDraw, poin
 
   if (isDraw) {
     if (socket) {
-      socket.emit('clientThree', { drawPos: drawPos, room: room });
+      socket.emit('freeDraw', { drawPos: drawPos, room: room });
     }
     points.push(drawPos);
     lineMesh.setPoints(points.flat());

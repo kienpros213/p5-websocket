@@ -23,18 +23,22 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   if (penTool) {
     if (lineArray.length <= 2) {
       lineArray.push(drawPos);
-      console.log('0', lineArray);
       if (lineArray.length === 2) {
         const geometry = new LineGeometry();
         geometry.setPositions(lineArray.flat());
 
         const material = new LineMaterial({
           color: 'red',
-          linewidth: 0.0085
+          linewidth: 0.005
         });
 
-        const myLine = new Line2(geometry, material);
-        scene.add(myLine);
+        const Line = new Line2(geometry, material);
+        scene.add(Line);
+
+        if (socket) {
+          socket.emit('penDraw', { drawPos: lineArray, room: room });
+        }
+
         lineArray = [];
         console.log('clear', lineArray);
         lineArray.push(drawPos);
@@ -143,13 +147,22 @@ const handleKeyDown = (
       if (!isDraw) {
         control.attach(currentShape);
         if (socket) {
-          socket.emit('clientStopDraw', room);
+          socket.emit('stopFreeDraw', room);
         }
       }
       break;
     case 17: //Cltr
       penTool = !penTool;
       lineArray = [];
+      if (penTool) {
+        control.detach(currentShape);
+      }
+      if (!penTool) {
+        control.attach(currentShape);
+        if (socket) {
+          socket.emit('stopFreeDraw', room);
+        }
+      }
       break;
   }
 

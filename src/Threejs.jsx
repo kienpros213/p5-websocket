@@ -23,7 +23,7 @@ import { useEffect, useRef, useState } from 'react';
 import { handleMouseUp, handleKeyUp, handleKeyDown, handlePenDraw } from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
-import { reDrawFunction } from './threeUtils/reDrawFunction';
+import { restoreFunction } from './threeUtils/restoreFunction';
 
 CameraControls.install({ THREE: THREE });
 
@@ -98,13 +98,13 @@ const Threejs = (props) => {
     //socket function
     if (props.socket) {
       props.socket.on(
-        'serverThree',
+        'serverFreeDraw',
         _.throttle((payload) => {
           threeSocketListener(scene.current, payload, recievedPoints.current);
         }, 1000 / 120)
       );
 
-      props.socket.on('serverStopDraw', (payload) => {
+      props.socket.on('serverStopFreeDraw', (payload) => {
         console.log(recievedPoints.current);
         console.log('stop');
         const existObject = recievedPoints.current.find((obj) => obj.id === payload);
@@ -112,12 +112,8 @@ const Threejs = (props) => {
       });
 
       props.socket.on('roomJoined', (payload) => {
-        let drawState = [];
-        const shapeIndex = payload.shapeIndex;
-        for (let i = 0; i < shapeIndex; i++) {
-          reDrawFunction(scene.current, payload.drawState[i]);
-          console.log(drawState);
-        }
+        const drawData = payload.drawState;
+        restoreFunction(scene.current, drawData);
       });
     }
     function animate() {
@@ -136,8 +132,8 @@ const Threejs = (props) => {
       // Dispose of the renderer, event listeners, and transform control
       if (props.socket) {
         props.socket.off('roomJoined');
-        props.socket.off('serverThree');
-        props.socket.off('serverStopDraw');
+        props.socket.off('serverFreeDraw');
+        props.socket.off('serverStopFreeDraw');
       }
       renderer.dispose();
       document.body.removeChild(renderer.domElement);
