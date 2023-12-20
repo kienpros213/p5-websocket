@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react';
-import { Box, HStack } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
 import RoomPanel from './components/RoomPanel';
 import Login from './components/Login';
@@ -11,7 +11,7 @@ const App = () => {
   const [socket, setSocket] = useState();
   const [room, setRoom] = useState();
   const [online, setOnline] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
 
   useEffect(() => {

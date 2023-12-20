@@ -10,11 +10,8 @@ export function onPointerMove(event, camera, scene, excludeObjects, isDraw, poin
 
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
-  if (intersects.length > 0) {
+  if (intersects.length > 0 && isDraw) {
     drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
-  }
-
-  if (isDraw) {
     if (socket) {
       socket.emit('freeDraw', { drawPos: drawPos, room: room });
     }

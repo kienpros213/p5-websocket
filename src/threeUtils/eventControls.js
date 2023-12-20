@@ -17,32 +17,29 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
 
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
-  if (intersects.length > 0) {
+
+  if (intersects.length > 0 && penTool && lineArray.length <= 2) {
     drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
-  }
-  if (penTool) {
-    if (lineArray.length <= 2) {
-      lineArray.push(drawPos);
-      if (lineArray.length === 2) {
-        const geometry = new LineGeometry();
-        geometry.setPositions(lineArray.flat());
+    lineArray.push(drawPos);
+    if (lineArray.length === 2) {
+      const geometry = new LineGeometry();
+      geometry.setPositions(lineArray.flat());
 
-        const material = new LineMaterial({
-          color: 'red',
-          linewidth: 0.005
-        });
+      const material = new LineMaterial({
+        color: 'red',
+        linewidth: 0.005
+      });
 
-        const Line = new Line2(geometry, material);
-        scene.add(Line);
+      const Line = new Line2(geometry, material);
+      scene.add(Line);
 
-        if (socket) {
-          socket.emit('penDraw', { drawPos: lineArray, room: room });
-        }
-
-        lineArray = [];
-        console.log('clear', lineArray);
-        lineArray.push(drawPos);
+      if (socket) {
+        socket.emit('penDraw', { drawPos: lineArray, room: room });
       }
+
+      lineArray = [];
+      console.log('clear', lineArray);
+      lineArray.push(drawPos);
     }
   }
 };
