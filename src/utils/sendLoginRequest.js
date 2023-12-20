@@ -1,4 +1,4 @@
-import { instance } from '../api/https';
+import instance from '../service/https';
 
 export function SendLoginRequest(username, password, setIsLoggedIn) {
   return instance
