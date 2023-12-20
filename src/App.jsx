@@ -16,7 +16,7 @@ const App = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const initSocket = io('https://draw-app-backend-7bhfv9dqa-kienpros213s-projects.vercel.app/');
+      const initSocket = io('https://draw-app-backend.vercel.app/');
       setSocket(initSocket);
       //on socket connect
       initSocket.on('connect', () => {
