@@ -1,19 +1,19 @@
 import {
+  AspectRatio,
+  Button,
+  Divider,
+  Heading,
+  Highlight,
+  Image,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Button,
-  AspectRatio,
-  Image,
-  Text,
-  Heading,
-  Divider,
-  Highlight
+  ModalContent,
+  ModalFooter,
+  ModalOverlay,
+  Text
 } from '@chakra-ui/react';
+import PropTypes from 'prop-types'; // ES6
 import React from 'react';
 
 function HelpModal(props) {
@@ -85,5 +85,7 @@ function HelpModal(props) {
     </>
   );
 }
+
+HelpModal.propTypes = { onClose: PropTypes.any, isOpen: PropTypes.any };
 
 export default HelpModal;

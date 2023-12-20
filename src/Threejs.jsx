@@ -24,6 +24,7 @@ import { handleMouseUp, handleKeyUp, handleKeyDown, handlePenDraw } from './thre
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
 import { restoreFunction } from './threeUtils/restoreFunction';
+import PropTypes from 'prop-types'; // ES6
 
 CameraControls.install({ THREE: THREE });
 
@@ -140,7 +141,7 @@ const Threejs = (props) => {
       control.current.dispose();
       control.current.removeEventListener('change', render);
     };
-  }, [props.socket, props.room]);
+  }, [props.socket, props.room, clock]);
 
   useEffect(() => {
     //mouse move
@@ -338,5 +339,7 @@ const Threejs = (props) => {
     </>
   );
 };
+
+Threejs.propTypes = { socket: PropTypes.any, room: PropTypes.any };
 
 export default Threejs;

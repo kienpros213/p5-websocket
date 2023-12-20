@@ -1,7 +1,6 @@
 import { fitToRect } from './fitToRect';
 import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-import _ from 'lodash';
 import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
 
 let reverseState = false;
@@ -99,21 +98,19 @@ const handleKeyDown = (
       console.log('x');
       if (reverseState) {
         fitToRect(xPlane, cameraControls);
-        break;
       }
       if (!reverseState) {
         fitToRect(reverseXPlane, cameraControls);
-        break;
       }
+      break;
     case 67: //C
       if (reverseState) {
         fitToRect(yPlane, cameraControls);
-        break;
       }
       if (!reverseState) {
         fitToRect(reverseYPlane, cameraControls);
-        break;
       }
+      break;
     case 90: //Z
       if (reverseState) {
         fitToRect(zPlane, cameraControls);
@@ -130,7 +127,7 @@ const handleKeyDown = (
     case 16: //Shift
       reverseState = true;
       break;
-    case 13: //Enter
+    case 13: { //Enter
       isDraw = !isDraw;
       const initLineMesh = new THREE.Mesh(lineGeometry, lineMaterial);
       initLineMesh.renderOrder = 1;
@@ -148,6 +145,8 @@ const handleKeyDown = (
         }
       }
       break;
+    }
+
     case 17: //Cltr
       penTool = !penTool;
       lineArray = [];
