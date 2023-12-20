@@ -1,4 +1,4 @@
-import { instance } from '../api/configaxios';
+import { instance } from '../api/https';
 
 export function SendLoginRequest(username, password, setIsLoggedIn) {
   return instance
