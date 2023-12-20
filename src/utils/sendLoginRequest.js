@@ -7,8 +7,8 @@ export function SendLoginRequest(username, password, setIsLoggedIn) {
       if (response) {
         console.log(response.data.access_token);
         setIsLoggedIn(true);
+        return { success: 'login success' };
       }
-      return { success: 'login success' };
     })
     .catch((error) => {
       return { error: error.response.data.message };
