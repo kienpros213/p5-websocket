@@ -1,4 +1,4 @@
-import { instance } from '../API/configaxios';
+import { instance } from '../api/configaxios';
 
 export async function SendRegisterRequest(username, password, email) {
   return instance
