@@ -1,5 +1,5 @@
 import axios from 'axios';
 
-const instance = axios.create({ baseURL: 'https://draw-app-backend.vercel.app/' });
+const instance = axios.create({ baseURL: 'http://localhost:3000/' });
 
 export default instance;

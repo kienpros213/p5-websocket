@@ -25,6 +25,7 @@ import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
 import { restoreFunction } from './threeUtils/restoreFunction';
 import PropTypes from 'prop-types'; // ES6
+import { loadFiles } from './threeUtils/loadFiles';
 
 CameraControls.install({ THREE: THREE });
 
@@ -48,6 +49,35 @@ const Threejs = (props) => {
   const size = 1000;
   const divisions = 1000;
   let penTool = false;
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (file) {
+      console.log('Uploading file...');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // You can write the URL of your server or any other endpoint used for file upload
+        const result = await fetch('https://httpbin.org/post', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await result.json();
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
 
   useEffect(() => {
     socket.current = props.socket;
@@ -211,11 +241,32 @@ const Threejs = (props) => {
       );
     });
 
+    document.addEventListener(
+      'dragover',
+      (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+      },
+      false
+    );
+
+    window.addEventListener(
+      'drop',
+      (e) => {
+        e.preventDefault();
+        // console.log(e.dataTransfer.files);
+        loadFiles(e.dataTransfer.files, scene.current);
+      },
+      false
+    );
+
     return () => {
       window.removeEventListener('mousedown', handlePenDraw);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('dragover');
+      window.removeEventListener('drop');
     };
   }, []);
 
@@ -263,6 +314,8 @@ const Threejs = (props) => {
       </Box>
       <Box pos="absolute" m="10px" p="10px" backgroundColor="#081924" borderRadius="10px">
         <VStack>
+          <IconButton onClick={handleUpload}></IconButton>
+          <Divider />
           <IconButton icon={<QuestionLg />} onClick={onOpen}></IconButton>
           <Divider />
           {/* shape button */}

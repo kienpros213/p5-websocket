@@ -11,12 +11,12 @@ const App = () => {
   const [socket, setSocket] = useState();
   const [room, setRoom] = useState();
   const [online, setOnline] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [username, setUsername] = useState('');
 
   useEffect(() => {
     if (isLoggedIn) {
-      const initSocket = io('https://draw-app-backend.vercel.app/');
+      const initSocket = io('ws://localhost:3000/');
       setSocket(initSocket);
       //on socket connect
       initSocket.on('connect', () => {
