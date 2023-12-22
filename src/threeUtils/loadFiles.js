@@ -31,11 +31,6 @@ function loadFile(file, scene, socket, manager) {
   var extension = filename.split('.').pop().toLowerCase();
 
   var reader = new FileReader();
-  reader.addEventListener('progress', function () {
-    console.log('progress');
-
-    console.log('Loading', filename);
-  });
 
   switch (extension) {
     case 'glb':
@@ -44,10 +39,9 @@ function loadFile(file, scene, socket, manager) {
         function (event) {
           const data = event.target.result;
           let offset = 0;
-          const chunkSize = 102400; // You can adjust the chunk size as needed
+          const chunkSize = 102400;
           const fileSize = file.size;
           const fileLength = reader.result.byteLength;
-          console.log(reader.result, fileLength);
 
           function sendChunk() {
             const chunk = new Uint8Array(data.slice(offset, offset + chunkSize));
@@ -59,11 +53,9 @@ function loadFile(file, scene, socket, manager) {
                 fileName: filename
               });
             }
-
             offset += chunkSize;
-
             if (offset < fileSize) {
-              setTimeout(sendChunk, 0); // Send the next chunk
+              setTimeout(sendChunk, 0);
             }
           }
           sendChunk();
@@ -93,7 +85,7 @@ function loadFile(file, scene, socket, manager) {
 
             scene.add(pointLight);
             const sphereSize = 1;
-            const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+            const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize, '#f54248');
             scene.add(pointLightHelper);
             console.log(model);
             scene.add(model);

@@ -8,11 +8,12 @@ let reverseState = false;
 let changeControl = true;
 let lineArray = [];
 
-const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room, control) => {
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  let drawPos = new THREE.Vector3();
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let drawPos = new THREE.Vector3();
+let controlTarget;
 
+const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room, control) => {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -20,17 +21,20 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
 
   if (intersects.length > 0) {
+    console.log('detect');
     if (changeControl) {
       const newObj = intersects[0].object;
-      console.log(
-        'full',
-        newObj.traverseAncestors((obj) => {
-          if (obj.isGroup) {
-            console.log(obj);
-            control.attach(obj);
-          }
-        })
-      );
+      if (newObj.name === 'plane') {
+        control.attach(newObj);
+        controlTarget = newObj;
+      }
+      newObj.traverseAncestors((obj) => {
+        if (obj.isGroup) {
+          control.attach(obj);
+          console.log(obj.name);
+          controlTarget = obj;
+        }
+      });
     }
 
     if (penTool && lineArray.length <= 2) {
@@ -57,6 +61,9 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
         lineArray.push(drawPos);
       }
     }
+  }
+  if (controlTarget) {
+    return controlTarget;
   }
 };
 
@@ -205,4 +212,15 @@ const handleDrop = (event, scene, socket, control) => {
   loadFiles(event.dataTransfer.files, scene, socket);
 };
 
-export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw, handleDrag, handleDrop };
+const controlChange = (controlTarget, socket, render) => {
+  if (controlTarget && socket) {
+    const name = controlTarget.name;
+    const position = { xP: controlTarget.position.x, yP: controlTarget.position.y, zP: controlTarget.position.z };
+    const rotation = { xR: controlTarget.rotation.x, yR: controlTarget.rotation.y, zR: controlTarget.rotation.z };
+    const scale = { xS: controlTarget.scale.x, yS: controlTarget.scale.y, zS: controlTarget.scale.z };
+    socket.emit('transform', { name: name, position: position, rotation: rotation, scale: scale });
+  }
+  render();
+};
+
+export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw, handleDrag, handleDrop, controlChange };

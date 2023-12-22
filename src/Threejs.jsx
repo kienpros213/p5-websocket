@@ -26,7 +26,8 @@ import {
   handleKeyDown,
   handlePenDraw,
   handleDrag,
-  handleDrop
+  handleDrop,
+  controlChange
 } from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
@@ -51,6 +52,7 @@ const Threejs = (props) => {
   let excludeObjects = useRef([]);
   let recievedPoints = useRef([]);
   let camera = useRef();
+  let controlTarget = useRef();
   const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
   let isDraw = false;
   let points = [];
@@ -164,6 +166,16 @@ const Threejs = (props) => {
           });
         }
       });
+
+      props.socket.on('serverTransfrom', (payload) => {
+        const currentShape = scene.current.getObjectByName(payload.name);
+        const { xP, yP, zP } = payload.position;
+        const { xR, yR, zR } = payload.rotation;
+        const { xS, yS, zS } = payload.scale;
+        currentShape.position.set(xP, yP, zP);
+        currentShape.rotation.set(xR, yR, zR);
+        currentShape.scale.set(xS, yS, zS);
+      });
     }
 
     function concatMultipleArrayBuffers(...buffers) {
@@ -187,7 +199,9 @@ const Threejs = (props) => {
 
     animate();
 
-    control.current.addEventListener('change', render);
+    control.current.addEventListener('change', () => {
+      controlChange(controlTarget.current, socket.current, render);
+    });
 
     //clean up
     return () => {
@@ -201,7 +215,7 @@ const Threejs = (props) => {
       renderer.dispose();
       document.body.removeChild(renderer.domElement);
       control.current.dispose();
-      control.current.removeEventListener('change', render);
+      control.current.removeEventListener('change', controlChange);
     };
   }, [props.socket, props.room, clock]);
 
@@ -256,7 +270,7 @@ const Threejs = (props) => {
     });
     //mouse down
     window.addEventListener('mousedown', (e) => {
-      handlePenDraw(
+      const newControlTarget = handlePenDraw(
         e,
         camera.current,
         scene.current,
@@ -264,8 +278,11 @@ const Threejs = (props) => {
         penTool,
         socket.current,
         room.current,
-        control.current
+        control.current,
+        controlTarget.current
       );
+
+      controlTarget.current = newControlTarget;
     });
     //mouse up
     window.addEventListener('mouseup', () => {
@@ -280,15 +297,15 @@ const Threejs = (props) => {
         reverseZPlane.current
       );
     });
-
-    document.addEventListener(
+    //drag
+    window.addEventListener(
       'dragover',
       (e) => {
         handleDrag(e);
       },
       false
     );
-
+    //drop
     window.addEventListener(
       'drop',
       (e) => {
@@ -296,7 +313,7 @@ const Threejs = (props) => {
       },
       false
     );
-
+    //clean up
     return () => {
       window.removeEventListener('mousedown', handlePenDraw);
       window.removeEventListener('keydown', handleKeyDown);
