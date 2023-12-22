@@ -99,7 +99,18 @@ const Threejs = (props) => {
     scene.current.fog = new THREE.Fog(fogColor, 1, 50);
 
     //add stuff
-    scene.current.add(shape, gridHelper, light, control.current);
+    scene.current.add(
+      shape,
+      gridHelper,
+      light,
+      control.current,
+      xPlane.current,
+      yPlane.current,
+      zPlane.current,
+      reverseXPlane.current,
+      reverseYPlane.current,
+      reverseZPlane.current
+    );
     excludeObjects.current.push(control.current, gridHelper);
 
     //render function
@@ -294,7 +305,8 @@ const Threejs = (props) => {
         zPlane.current,
         reverseXPlane.current,
         reverseYPlane.current,
-        reverseZPlane.current
+        reverseZPlane.current,
+        controlTarget.current
       );
     });
     //drag

@@ -64,9 +64,18 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   }
 };
 
-const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane) => {
-  const currentShape = scene.getObjectByName(shapeName);
-  const { x, y, z } = currentShape.position;
+const handleMouseUp = (
+  scene,
+  shapeName,
+  xPlane,
+  yPlane,
+  zPlane,
+  reverseXPlane,
+  reverseYPlane,
+  reverseZPlane,
+  controlTarget
+) => {
+  const { x, y, z } = controlTarget.position;
   xPlane.position.set(x + 6, y, z);
   yPlane.position.set(x, y + 6, z);
   zPlane.position.set(x, y, z + 6);
