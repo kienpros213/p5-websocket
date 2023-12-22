@@ -2,11 +2,13 @@ import { fitToRect } from './fitToRect';
 import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
+import { loadFiles } from './loadFiles';
 
 let reverseState = false;
+let changeControl = true;
 let lineArray = [];
 
-const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room) => {
+const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room, control) => {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   let drawPos = new THREE.Vector3();
@@ -17,28 +19,43 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
 
-  if (intersects.length > 0 && penTool && lineArray.length <= 2) {
-    drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
-    lineArray.push(drawPos);
-    if (lineArray.length === 2) {
-      const geometry = new LineGeometry();
-      geometry.setPositions(lineArray.flat());
+  if (intersects.length > 0) {
+    if (changeControl) {
+      const newObj = intersects[0].object;
+      console.log(
+        'full',
+        newObj.traverseAncestors((obj) => {
+          if (obj.isGroup) {
+            console.log(obj);
+            control.attach(obj);
+          }
+        })
+      );
+    }
 
-      const material = new LineMaterial({
-        color: 'red',
-        linewidth: 0.005
-      });
-
-      const Line = new Line2(geometry, material);
-      scene.add(Line);
-
-      if (socket) {
-        socket.emit('penDraw', { drawPos: lineArray, room: room });
-      }
-
-      lineArray = [];
-      console.log('clear', lineArray);
+    if (penTool && lineArray.length <= 2) {
+      drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
       lineArray.push(drawPos);
+      if (lineArray.length === 2) {
+        const geometry = new LineGeometry();
+        geometry.setPositions(lineArray.flat());
+
+        const material = new LineMaterial({
+          color: 'red',
+          linewidth: 0.005
+        });
+
+        const Line = new Line2(geometry, material);
+        scene.add(Line);
+
+        if (socket) {
+          socket.emit('penDraw', { drawPos: lineArray, room: room });
+        }
+
+        lineArray = [];
+        console.log('clear', lineArray);
+        lineArray.push(drawPos);
+      }
     }
   }
 };
@@ -127,7 +144,8 @@ const handleKeyDown = (
     case 16: //Shift
       reverseState = true;
       break;
-    case 13: { //Enter
+    case 13: {
+      //Enter
       isDraw = !isDraw;
       const initLineMesh = new THREE.Mesh(lineGeometry, lineMaterial);
       initLineMesh.renderOrder = 1;
@@ -149,6 +167,7 @@ const handleKeyDown = (
 
     case 17: //Cltr
       penTool = !penTool;
+      changeControl = !changeControl;
       lineArray = [];
       if (penTool) {
         control.detach(currentShape);
@@ -176,4 +195,14 @@ const handleKeyUp = (event, cameraControls, CameraControls) => {
   }
 };
 
-export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw };
+const handleDrag = (event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+};
+
+const handleDrop = (event, scene, socket, control) => {
+  event.preventDefault();
+  loadFiles(event.dataTransfer.files, scene, socket);
+};
+
+export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw, handleDrag, handleDrop };

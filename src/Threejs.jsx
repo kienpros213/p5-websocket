@@ -20,12 +20,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
 import { fitToRect } from './threeUtils/fitToRect';
 import { useEffect, useRef, useState } from 'react';
-import { handleMouseUp, handleKeyUp, handleKeyDown, handlePenDraw } from './threeUtils/eventControls';
+import {
+  handleMouseUp,
+  handleKeyUp,
+  handleKeyDown,
+  handlePenDraw,
+  handleDrag,
+  handleDrop
+} from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
 import { restoreFunction } from './threeUtils/restoreFunction';
 import PropTypes from 'prop-types'; // ES6
-import { loadFiles } from './threeUtils/loadFiles';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 CameraControls.install({ THREE: THREE });
 
@@ -49,35 +57,6 @@ const Threejs = (props) => {
   const size = 1000;
   const divisions = 1000;
   let penTool = false;
-  const [file, setFile] = useState(null);
-
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (file) {
-      console.log('Uploading file...');
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        // You can write the URL of your server or any other endpoint used for file upload
-        const result = await fetch('https://httpbin.org/post', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await result.json();
-        console.log(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
 
   useEffect(() => {
     socket.current = props.socket;
@@ -128,6 +107,8 @@ const Threejs = (props) => {
 
     //socket function
     if (props.socket) {
+      let receivedChunks = [];
+
       props.socket.on(
         'serverFreeDraw',
         _.throttle((payload) => {
@@ -146,7 +127,57 @@ const Threejs = (props) => {
         const drawData = payload.drawState;
         restoreFunction(scene.current, drawData);
       });
+
+      props.socket.on('serverLoadModel', (payload) => {
+        // Assuming payload is an ArrayBuffer
+        console.log(payload.byteLength);
+        receivedChunks.push(payload.data);
+        const combinedBuffer = concatMultipleArrayBuffers(...receivedChunks);
+        console.log(combinedBuffer);
+        if (combinedBuffer.byteLength === payload.byteLength) {
+          console.log('done');
+
+          const draco = new DRACOLoader();
+          draco.setDecoderPath('../examples/js/libs/draco/gltf/');
+          console.log(draco);
+
+          var loader = new GLTFLoader();
+          loader.setDRACOLoader(draco);
+          loader.parse(combinedBuffer, '', function (result) {
+            var model = result.scene;
+            model.name = payload.fileName;
+            const box3 = new THREE.Box3();
+            const size = new THREE.Vector3();
+
+            const pointLight = new THREE.PointLight(0xffffff, 20, 100);
+            pointLight.position.set(0, 5, 0);
+
+            box3.setFromObject(model);
+            box3.getSize(size);
+            const max = Math.max(size.x, size.y, size.z);
+            model.scale.setScalar(1 / max);
+
+            scene.current.add(pointLight);
+            scene.current.add(result.scene);
+
+            receivedChunks = [];
+          });
+        }
+      });
     }
+
+    function concatMultipleArrayBuffers(...buffers) {
+      const totalLength = buffers.reduce((sum, buffer) => sum + buffer.byteLength, 0);
+      const result = new ArrayBuffer(totalLength);
+      let offset = 0;
+      for (const buffer of buffers) {
+        const view = new Uint8Array(result, offset, buffer.byteLength);
+        view.set(new Uint8Array(buffer));
+        offset += buffer.byteLength;
+      }
+      return result;
+    }
+
     function animate() {
       const delta = clock.getDelta();
       cameraControls.current.update(delta);
@@ -165,6 +196,7 @@ const Threejs = (props) => {
         props.socket.off('roomJoined');
         props.socket.off('serverFreeDraw');
         props.socket.off('serverStopFreeDraw');
+        props.socket.off('serverLoadModel');
       }
       renderer.dispose();
       document.body.removeChild(renderer.domElement);
@@ -217,7 +249,6 @@ const Threejs = (props) => {
       points = result.points;
       lineMesh.current = result.lineMesh;
       penTool = result.penTool;
-      // console.log(result.penTool);
     });
     //key up
     window.addEventListener('keyup', (e) => {
@@ -225,7 +256,16 @@ const Threejs = (props) => {
     });
     //mouse down
     window.addEventListener('mousedown', (e) => {
-      handlePenDraw(e, camera.current, scene.current, excludeObjects.current, penTool, socket.current, room.current);
+      handlePenDraw(
+        e,
+        camera.current,
+        scene.current,
+        excludeObjects.current,
+        penTool,
+        socket.current,
+        room.current,
+        control.current
+      );
     });
     //mouse up
     window.addEventListener('mouseup', () => {
@@ -243,9 +283,8 @@ const Threejs = (props) => {
 
     document.addEventListener(
       'dragover',
-      (event) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'copy';
+      (e) => {
+        handleDrag(e);
       },
       false
     );
@@ -253,9 +292,7 @@ const Threejs = (props) => {
     window.addEventListener(
       'drop',
       (e) => {
-        e.preventDefault();
-        // console.log(e.dataTransfer.files);
-        loadFiles(e.dataTransfer.files, scene.current);
+        handleDrop(e, scene.current, socket.current);
       },
       false
     );
@@ -265,8 +302,8 @@ const Threejs = (props) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('dragover');
-      window.removeEventListener('drop');
+      window.removeEventListener('dragover', handleDrag);
+      window.removeEventListener('drop', handleDrop);
     };
   }, []);
 
@@ -314,8 +351,6 @@ const Threejs = (props) => {
       </Box>
       <Box pos="absolute" m="10px" p="10px" backgroundColor="#081924" borderRadius="10px">
         <VStack>
-          <IconButton onClick={handleUpload}></IconButton>
-          <Divider />
           <IconButton icon={<QuestionLg />} onClick={onOpen}></IconButton>
           <Divider />
           {/* shape button */}
