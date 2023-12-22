@@ -21,7 +21,6 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
 
   if (intersects.length > 0) {
-    console.log('detect');
     if (changeControl) {
       const newObj = intersects[0].object;
       if (newObj.name === 'plane') {
@@ -31,7 +30,6 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
       newObj.traverseAncestors((obj) => {
         if (obj.isGroup) {
           control.attach(obj);
-          console.log(obj.name);
           controlTarget = obj;
         }
       });
@@ -57,7 +55,6 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
         }
 
         lineArray = [];
-        console.log('clear', lineArray);
         lineArray.push(drawPos);
       }
     }
@@ -119,7 +116,6 @@ const handleKeyDown = (
       control.setMode('scale');
       break;
     case 88: //X
-      console.log('x');
       if (reverseState) {
         fitToRect(xPlane, cameraControls);
       }
@@ -207,18 +203,19 @@ const handleDrag = (event) => {
   event.dataTransfer.dropEffect = 'copy';
 };
 
-const handleDrop = (event, scene, socket, control) => {
+const handleDrop = (event, scene, socket, room) => {
   event.preventDefault();
-  loadFiles(event.dataTransfer.files, scene, socket);
+  loadFiles(event.dataTransfer.files, scene, socket, room);
 };
 
-const controlChange = (controlTarget, socket, render) => {
+const controlChange = (controlTarget, socket, render, room) => {
+  console.log('exe');
   if (controlTarget && socket) {
     const name = controlTarget.name;
     const position = { xP: controlTarget.position.x, yP: controlTarget.position.y, zP: controlTarget.position.z };
     const rotation = { xR: controlTarget.rotation.x, yR: controlTarget.rotation.y, zR: controlTarget.rotation.z };
     const scale = { xS: controlTarget.scale.x, yS: controlTarget.scale.y, zS: controlTarget.scale.z };
-    socket.emit('transform', { name: name, position: position, rotation: rotation, scale: scale });
+    socket.emit('transform', { room: room, name: name, position: position, rotation: rotation, scale: scale });
   }
   render();
 };

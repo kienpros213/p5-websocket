@@ -12,7 +12,6 @@ export function restoreFunction(scene, drawData) {
 
   for (let i = 0; i <= freeDrawIndex; i++) {
     freeDrawFunction(scene, drawData.freeDraw[i]);
-    console.log(drawData.freeDraw[i]);
   }
 }
 
@@ -33,7 +32,6 @@ function freeDrawFunction(scene, recievedPoints) {
 }
 
 function penDrawFunction(scene, recievedPoints) {
-  console.log(recievedPoints.flat(2));
   const geometry = new LineGeometry();
 
   const material = new LineMaterial({

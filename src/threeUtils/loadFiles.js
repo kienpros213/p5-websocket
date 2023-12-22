@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export const loadFiles = (files, scene, socket) => {
+export const loadFiles = (files, scene, socket, room) => {
   if (files.length > 0) {
     var filesMap = createFileMap(files);
 
@@ -21,12 +21,12 @@ export const loadFiles = (files, scene, socket) => {
 
     for (var i = 0; i < files.length; i++) {
       console.log(files[i]);
-      loadFile(files[i], scene, socket, manager);
+      loadFile(files[i], scene, socket, manager, room);
     }
   }
 };
 
-function loadFile(file, scene, socket, manager) {
+function loadFile(file, scene, socket, manager, room) {
   var filename = file.name;
   var extension = filename.split('.').pop().toLowerCase();
 
@@ -45,12 +45,13 @@ function loadFile(file, scene, socket, manager) {
 
           function sendChunk() {
             const chunk = new Uint8Array(data.slice(offset, offset + chunkSize));
-
+            console.log(room);
             if (socket) {
               socket.emit('loadModel', {
                 byteLength: fileLength,
                 data: chunk,
-                fileName: filename
+                fileName: filename,
+                room: room
               });
             }
             offset += chunkSize;
@@ -64,7 +65,6 @@ function loadFile(file, scene, socket, manager) {
 
           const draco = new DRACOLoader();
           draco.setDecoderPath('../examples/js/libs/draco/gltf/');
-          console.log(draco);
 
           var loader = new GLTFLoader();
           loader.setDRACOLoader(draco);
@@ -80,14 +80,12 @@ function loadFile(file, scene, socket, manager) {
             box3.setFromObject(model);
             box3.getSize(size);
             const max = Math.max(size.x, size.y, size.z);
-            console.log(max);
             model.scale.setScalar(1 / max);
 
             scene.add(pointLight);
             const sphereSize = 1;
             const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize, '#f54248');
             scene.add(pointLightHelper);
-            console.log(model);
             scene.add(model);
           });
         },
@@ -96,28 +94,29 @@ function loadFile(file, scene, socket, manager) {
       reader.readAsArrayBuffer(file);
       break;
 
-    case 'gltf':
-      console.log(file);
-      if (socket) {
-        socket.emit('loadModel', file);
-      }
-      reader.addEventListener(
-        'load',
-        function (event) {
-          console.log(event.target.result);
-          var contents = event.target.result;
-          var loader;
-          loader = new GLTFLoader(manager);
-          loader.parse(contents, '', function (result) {
-            var model = result.scene;
-            model.name = filename;
-            scene.add(model);
-          });
-        },
-        false
-      );
-      reader.readAsArrayBuffer(file);
-      break;
+    // case 'gltf':
+    //   if (socket) {
+    //     socket.emit('loadModel', file);
+    //   }
+    //   reader.addEventListener(
+    //     'load',
+    //     function (event) {
+    //       var contents = event.target.result;
+    //       var loader;
+    //       loader = new GLTFLoader(manager);
+    //       loader.parse(contents, '', function (result) {
+    //         var model = result.scene;
+    //         model.name = filename;
+    //         scene.add(model);
+    //       });
+    //     },
+    //     false
+    //   );
+    //   reader.readAsArrayBuffer(file);
+    //   break;
+
+    default:
+      console.log('unsupported format');
   }
 }
 

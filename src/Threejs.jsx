@@ -119,8 +119,6 @@ const Threejs = (props) => {
       );
 
       props.socket.on('serverStopFreeDraw', (payload) => {
-        console.log(recievedPoints.current);
-        console.log('stop');
         const existObject = recievedPoints.current.find((obj) => obj.id === payload);
         existObject.data = [];
       });
@@ -141,7 +139,6 @@ const Threejs = (props) => {
 
           const draco = new DRACOLoader();
           draco.setDecoderPath('../examples/js/libs/draco/gltf/');
-          console.log(draco);
 
           var loader = new GLTFLoader();
           loader.setDRACOLoader(draco);
@@ -199,9 +196,12 @@ const Threejs = (props) => {
 
     animate();
 
-    control.current.addEventListener('change', () => {
-      controlChange(controlTarget.current, socket.current, render);
-    });
+    control.current.addEventListener(
+      'change',
+      _.throttle(() => {
+        controlChange(controlTarget.current, socket.current, render, room.current);
+      }, 200)
+    );
 
     //clean up
     return () => {
@@ -309,7 +309,7 @@ const Threejs = (props) => {
     window.addEventListener(
       'drop',
       (e) => {
-        handleDrop(e, scene.current, socket.current);
+        handleDrop(e, scene.current, socket.current, room.current);
       },
       false
     );
@@ -358,7 +358,6 @@ const Threejs = (props) => {
               value={rotation}
               onChange={(e) => {
                 setRotation(e.target.value);
-                console.log(shapeName.current);
               }}
               textAlign="center"
               backgroundColor="white"

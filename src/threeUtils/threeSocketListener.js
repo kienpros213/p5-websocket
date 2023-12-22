@@ -6,7 +6,6 @@ export function threeSocketListener(scene, payload, recievedPoints) {
   const existObject = recievedPoints.find((obj) => obj.id === id);
   if (existObject) {
     existObject.data.push(data);
-    console.log(existObject.data.flat(Infinity));
   } else {
     const newObject = { id: id, data: data };
     recievedPoints.push(newObject);

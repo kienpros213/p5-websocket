@@ -16,7 +16,7 @@ const App = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const initSocket = io('ws://localhost:3000/');
+      const initSocket = io('ws://192.168.1.107:3000/');
       setSocket(initSocket);
       //on socket connect
       initSocket.on('connect', () => {
