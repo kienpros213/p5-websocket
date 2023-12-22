@@ -1,22 +1,21 @@
 import { MathUtils } from 'three';
 
-export function shapeRotation(rotation, scene, direction, shapeName) {
+export function shapeRotation(rotation, scene, direction, controlTarget) {
   const newRotation = MathUtils.degToRad(rotation);
   const convertedRotation = newRotation;
-  const currentShape = scene.getObjectByName(shapeName);
-  const { x, y, z } = currentShape.rotation;
+  const { x, y, z } = controlTarget.rotation;
 
   switch (direction) {
     case 'x':
-      currentShape.rotation.set(convertedRotation, y, z);
+      controlTarget.rotation.set(convertedRotation, y, z);
       break;
     case 'y':
-      currentShape.rotation.set(x, convertedRotation, z);
+      controlTarget.rotation.set(x, convertedRotation, z);
       break;
     case 'z':
-      currentShape.rotation.set(x, y, convertedRotation);
+      controlTarget.rotation.set(x, y, convertedRotation);
       break;
     case 'all':
-      currentShape.rotation.set(0, 0, 0);
+      controlTarget.rotation.set(0, 0, 0);
   }
 }

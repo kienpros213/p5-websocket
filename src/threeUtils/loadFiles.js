@@ -72,20 +72,20 @@ function loadFile(file, scene, socket, manager, room) {
             var model = result.scene;
             model.name = filename;
 
-            const pointLight = new THREE.PointLight(0xffffff, 20, 100);
+            // const pointLight = new THREE.PointLight(0xffffff, 20, 100);
 
-            pointLight.position.set(0, 5, 0);
+            // pointLight.position.set(0, 5, 0);
             const box3 = new THREE.Box3();
             const size = new THREE.Vector3();
             box3.setFromObject(model);
             box3.getSize(size);
-            const max = Math.max(size.x, size.y, size.z);
-            model.scale.setScalar(1 / max);
+            const min = Math.min(size.x, size.y, size.z);
+            model.scale.setScalar(1 / min);
 
-            scene.add(pointLight);
-            const sphereSize = 1;
-            const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize, '#f54248');
-            scene.add(pointLightHelper);
+            // scene.add(pointLight);
+            // const sphereSize = 1;
+            // const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize, '#f54248');
+            // scene.add(pointLightHelper);
             scene.add(model);
           });
         },

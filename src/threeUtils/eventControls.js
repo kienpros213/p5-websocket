@@ -21,42 +21,45 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
 
   if (intersects.length > 0) {
-    if (changeControl) {
-      const newObj = intersects[0].object;
-      if (newObj.name === 'plane') {
-        control.attach(newObj);
-        controlTarget = newObj;
-      }
-      newObj.traverseAncestors((obj) => {
-        if (obj.isGroup) {
-          control.attach(obj);
-          controlTarget = obj;
-        }
-      });
+    const newObj = intersects[0].object;
+    if (
+      (changeControl && newObj.name === 'plane') ||
+      newObj.name === 'box' ||
+      newObj.name === 'cone' ||
+      newObj.name === 'sphere'
+    ) {
+      control.attach(newObj);
+      controlTarget = newObj;
     }
-
-    if (penTool && lineArray.length <= 2) {
-      drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
-      lineArray.push(drawPos);
-      if (lineArray.length === 2) {
-        const geometry = new LineGeometry();
-        geometry.setPositions(lineArray.flat());
-
-        const material = new LineMaterial({
-          color: 'red',
-          linewidth: 0.005
-        });
-
-        const Line = new Line2(geometry, material);
-        scene.add(Line);
-
-        if (socket) {
-          socket.emit('penDraw', { drawPos: lineArray, room: room });
-        }
-
-        lineArray = [];
-        lineArray.push(drawPos);
+    newObj.traverseAncestors((obj) => {
+      if (obj.isGroup) {
+        control.attach(obj);
+        controlTarget = obj;
       }
+    });
+  }
+
+  if (penTool && lineArray.length <= 2) {
+    drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
+    lineArray.push(drawPos);
+    if (lineArray.length === 2) {
+      const geometry = new LineGeometry();
+      geometry.setPositions(lineArray.flat());
+
+      const material = new LineMaterial({
+        color: 'red',
+        linewidth: 0.005
+      });
+
+      const Line = new Line2(geometry, material);
+      scene.add(Line);
+
+      if (socket) {
+        socket.emit('penDraw', { drawPos: lineArray, room: room });
+      }
+
+      lineArray = [];
+      lineArray.push(drawPos);
     }
   }
   if (controlTarget) {
@@ -64,24 +67,16 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   }
 };
 
-const handleMouseUp = (
-  scene,
-  shapeName,
-  xPlane,
-  yPlane,
-  zPlane,
-  reverseXPlane,
-  reverseYPlane,
-  reverseZPlane,
-  controlTarget
-) => {
-  const { x, y, z } = controlTarget.position;
-  xPlane.position.set(x + 6, y, z);
-  yPlane.position.set(x, y + 6, z);
-  zPlane.position.set(x, y, z + 6);
-  reverseXPlane.position.set(x + -6, y, z);
-  reverseYPlane.position.set(x, y + -6, z);
-  reverseZPlane.position.set(x, y, z + -6);
+const handleMouseUp = (xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane, controlTarget) => {
+  if (controlTarget) {
+    const { x, y, z } = controlTarget.position;
+    xPlane.position.set(x + 6, y, z);
+    yPlane.position.set(x, y + 6, z);
+    zPlane.position.set(x, y, z + 6);
+    reverseXPlane.position.set(x + -6, y, z);
+    reverseYPlane.position.set(x, y + -6, z);
+    reverseZPlane.position.set(x, y, z + -6);
+  }
 };
 
 const handleKeyDown = (
@@ -113,7 +108,6 @@ const handleKeyDown = (
   lineMaterial.polygonOffset = true;
   lineMaterial.polygonOffsetUnit = 1;
   lineMaterial.polygonOffsetFactor = 1;
-  lineMaterial.blending = THREE.NormalBlending;
   switch (event.keyCode) {
     case 87: // W
       control.setMode('translate');

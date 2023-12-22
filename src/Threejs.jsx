@@ -33,8 +33,7 @@ import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
 import { restoreFunction } from './threeUtils/restoreFunction';
 import PropTypes from 'prop-types'; // ES6
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { loadModel } from './utils/loadModel';
 
 CameraControls.install({ THREE: THREE });
 
@@ -68,6 +67,7 @@ const Threejs = (props) => {
 
     camera.current.position.z = 8;
     camera.current.position.y = 8;
+    //renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       logarithmicDepthBuffer: true
@@ -79,10 +79,11 @@ const Threejs = (props) => {
     const gridHelper = new THREE.GridHelper(size, divisions);
 
     //light
-    const light = createLight(0xffffff, 10);
+    const light = createLight(0xffffff, 1);
 
-    //mesh
-    const shape = createPlane(5, 5, '#34aeeb');
+    //init plane mesh
+    const shape = createPlane(5, 5, '#000000');
+    controlTarget.current = shape;
     shape.name = 'plane';
 
     //transform control
@@ -99,18 +100,7 @@ const Threejs = (props) => {
     scene.current.fog = new THREE.Fog(fogColor, 1, 50);
 
     //add stuff
-    scene.current.add(
-      shape,
-      gridHelper,
-      light,
-      control.current,
-      xPlane.current,
-      yPlane.current,
-      zPlane.current,
-      reverseXPlane.current,
-      reverseYPlane.current,
-      reverseZPlane.current
-    );
+    scene.current.add(shape, gridHelper, light, control.current);
     excludeObjects.current.push(control.current, gridHelper);
 
     //render function
@@ -120,8 +110,6 @@ const Threejs = (props) => {
 
     //socket function
     if (props.socket) {
-      let receivedChunks = [];
-
       props.socket.on(
         'serverFreeDraw',
         _.throttle((payload) => {
@@ -140,39 +128,7 @@ const Threejs = (props) => {
       });
 
       props.socket.on('serverLoadModel', (payload) => {
-        // Assuming payload is an ArrayBuffer
-        console.log(payload.byteLength);
-        receivedChunks.push(payload.data);
-        const combinedBuffer = concatMultipleArrayBuffers(...receivedChunks);
-        console.log(combinedBuffer);
-        if (combinedBuffer.byteLength === payload.byteLength) {
-          console.log('done');
-
-          const draco = new DRACOLoader();
-          draco.setDecoderPath('../examples/js/libs/draco/gltf/');
-
-          var loader = new GLTFLoader();
-          loader.setDRACOLoader(draco);
-          loader.parse(combinedBuffer, '', function (result) {
-            var model = result.scene;
-            model.name = payload.fileName;
-            const box3 = new THREE.Box3();
-            const size = new THREE.Vector3();
-
-            const pointLight = new THREE.PointLight(0xffffff, 20, 100);
-            pointLight.position.set(0, 5, 0);
-
-            box3.setFromObject(model);
-            box3.getSize(size);
-            const max = Math.max(size.x, size.y, size.z);
-            model.scale.setScalar(1 / max);
-
-            scene.current.add(pointLight);
-            scene.current.add(result.scene);
-
-            receivedChunks = [];
-          });
-        }
+        loadModel(payload, scene.current);
       });
 
       props.socket.on('serverTransfrom', (payload) => {
@@ -186,18 +142,6 @@ const Threejs = (props) => {
       });
     }
 
-    function concatMultipleArrayBuffers(...buffers) {
-      const totalLength = buffers.reduce((sum, buffer) => sum + buffer.byteLength, 0);
-      const result = new ArrayBuffer(totalLength);
-      let offset = 0;
-      for (const buffer of buffers) {
-        const view = new Uint8Array(result, offset, buffer.byteLength);
-        view.set(new Uint8Array(buffer));
-        offset += buffer.byteLength;
-      }
-      return result;
-    }
-
     function animate() {
       const delta = clock.getDelta();
       cameraControls.current.update(delta);
@@ -206,7 +150,7 @@ const Threejs = (props) => {
     }
 
     animate();
-
+    //control event listener
     control.current.addEventListener(
       'change',
       _.throttle(() => {
@@ -225,29 +169,12 @@ const Threejs = (props) => {
       }
       renderer.dispose();
       document.body.removeChild(renderer.domElement);
-      control.current.dispose();
       control.current.removeEventListener('change', controlChange);
+      control.current.dispose();
     };
-  }, [props.socket, props.room, clock]);
+  }, [props.socket, props.room]);
 
   useEffect(() => {
-    //mouse move
-    window.addEventListener(
-      'mousemove',
-      _.throttle((e) => {
-        onPointerMove(
-          e,
-          camera.current,
-          scene.current,
-          excludeObjects.current,
-          isDraw,
-          points,
-          socket.current,
-          lineMesh.current,
-          room.current
-        );
-      }, 1000 / 120)
-    );
     //key down
     window.addEventListener('keydown', (e) => {
       const result = handleKeyDown(
@@ -281,6 +208,7 @@ const Threejs = (props) => {
     });
     //mouse down
     window.addEventListener('mousedown', (e) => {
+      console.log(controlTarget);
       const newControlTarget = handlePenDraw(
         e,
         camera.current,
@@ -297,9 +225,8 @@ const Threejs = (props) => {
     });
     //mouse up
     window.addEventListener('mouseup', () => {
+      console.log(controlTarget);
       handleMouseUp(
-        scene.current,
-        shapeName.current,
         xPlane.current,
         yPlane.current,
         zPlane.current,
@@ -309,6 +236,23 @@ const Threejs = (props) => {
         controlTarget.current
       );
     });
+    //mouse move
+    window.addEventListener(
+      'mousemove',
+      _.throttle((e) => {
+        onPointerMove(
+          e,
+          camera.current,
+          scene.current,
+          excludeObjects.current,
+          isDraw,
+          points,
+          socket.current,
+          lineMesh.current,
+          room.current
+        );
+      }, 1000 / 120)
+    );
     //drag
     window.addEventListener(
       'dragover',
@@ -327,10 +271,10 @@ const Threejs = (props) => {
     );
     //clean up
     return () => {
-      window.removeEventListener('mousedown', handlePenDraw);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousedown', handlePenDraw);
       window.removeEventListener('dragover', handleDrag);
       window.removeEventListener('drop', handleDrop);
     };
@@ -344,25 +288,25 @@ const Threejs = (props) => {
           <HStack p="10px">
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'all', shapeName.current);
+                shapeRotation(rotation, scene.current, 'all', controlTarget.current);
               }}
               icon={<ArrowCounterclockwise />}
             ></IconButton>
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'x', shapeName.current);
+                shapeRotation(rotation, scene.current, 'x', controlTarget.current);
               }}
               icon={<FontAwesomeIcon icon={faX} />}
             ></IconButton>
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'y', shapeName.current);
+                shapeRotation(rotation, scene.current, 'y', controlTarget.current);
               }}
               icon={<FontAwesomeIcon icon={faY} />}
             ></IconButton>
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'z', shapeName.current);
+                shapeRotation(rotation, scene.current, 'z', controlTarget.current);
               }}
               icon={<FontAwesomeIcon icon={faZ} />}
             ></IconButton>

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-export function createLight() {
-  const light = new THREE.AmbientLight(0x404040); // soft white light
+export function createLight(color, intensity) {
+  const light = new THREE.AmbientLight(color, intensity); // soft white light
   return light;
 }
 
