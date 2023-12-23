@@ -22,15 +22,12 @@ export function loadModel(payload, scene) {
       const box3 = new THREE.Box3();
       const size = new THREE.Vector3();
 
-      const pointLight = new THREE.PointLight(0xffffff, 20, 100);
-      pointLight.position.set(0, 5, 0);
-
       box3.setFromObject(model);
       box3.getSize(size);
-      const max = Math.max(size.x, size.y, size.z);
-      model.scale.setScalar(1 / max);
+      1;
+      const min = Math.min(size.x, size.y, size.z);
+      model.scale.setScalar(1 / min);
 
-      scene.add(pointLight);
       scene.add(result.scene);
 
       receivedChunks = [];

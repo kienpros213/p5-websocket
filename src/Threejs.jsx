@@ -123,6 +123,7 @@ const Threejs = (props) => {
       });
 
       props.socket.on('roomJoined', (payload) => {
+        console.log(payload);
         const drawData = payload.drawState;
         restoreFunction(scene.current, drawData);
       });
@@ -208,7 +209,6 @@ const Threejs = (props) => {
     });
     //mouse down
     window.addEventListener('mousedown', (e) => {
-      console.log(controlTarget);
       const newControlTarget = handlePenDraw(
         e,
         camera.current,
@@ -225,7 +225,6 @@ const Threejs = (props) => {
     });
     //mouse up
     window.addEventListener('mouseup', () => {
-      console.log(controlTarget);
       handleMouseUp(
         xPlane.current,
         yPlane.current,

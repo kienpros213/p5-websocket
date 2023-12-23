@@ -212,7 +212,6 @@ const handleDrop = (event, scene, socket, room) => {
 };
 
 const controlChange = (controlTarget, socket, render, room) => {
-  console.log('exe');
   if (controlTarget && socket) {
     const name = controlTarget.name;
     const position = { xP: controlTarget.position.x, yP: controlTarget.position.y, zP: controlTarget.position.z };

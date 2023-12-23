@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 export function restoreFunction(scene, drawData) {
   const freeDrawIndex = drawData.freeDraw.shapeIndex;
   const penDrawIndex = drawData.penDraw.shapeIndex;
+  const modelIndex = drawData.model.shapeIndex;
 
   for (let i = 0; i < penDrawIndex; i++) {
     penDrawFunction(scene, drawData.penDraw[i]);
@@ -12,6 +15,10 @@ export function restoreFunction(scene, drawData) {
 
   for (let i = 0; i <= freeDrawIndex; i++) {
     freeDrawFunction(scene, drawData.freeDraw[i]);
+  }
+
+  for (let i = 0; i < modelIndex; i++) {
+    concatenateArrayBuffers(drawData.model[i], scene);
   }
 }
 
@@ -43,4 +50,43 @@ function penDrawFunction(scene, recievedPoints) {
   scene.add(Line);
 
   geometry.setPositions(recievedPoints.flat(2));
+}
+
+function concatenateArrayBuffers(arrayBuffers, scene) {
+  // Calculate the total length of all array buffers
+  let totalLength = arrayBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
+
+  // Create a new ArrayBuffer with the total length
+  let resultBuffer = new ArrayBuffer(totalLength);
+
+  // Create a view to manipulate the resultBuffer
+  let resultView = new Uint8Array(resultBuffer);
+
+  // Copy each array buffer into the result buffer
+  let offset = 0;
+  arrayBuffers.forEach((buffer) => {
+    let sourceView = new Uint8Array(buffer);
+    resultView.set(sourceView, offset);
+    offset += buffer.byteLength;
+  });
+
+  const draco = new DRACOLoader();
+  draco.setDecoderPath('../examples/js/libs/draco/gltf/');
+
+  var loader = new GLTFLoader();
+  loader.setDRACOLoader(draco);
+  loader.parse(resultBuffer, '', function (result) {
+    var model = result.scene;
+    model.name = 'random';
+    const box3 = new THREE.Box3();
+    const size = new THREE.Vector3();
+
+    box3.setFromObject(model);
+    box3.getSize(size);
+    1;
+    const min = Math.min(size.x, size.y, size.z);
+    model.scale.setScalar(1 / min);
+
+    scene.add(result.scene);
+  });
 }
