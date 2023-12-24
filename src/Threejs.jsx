@@ -157,7 +157,7 @@ const Threejs = (props) => {
       'change',
       _.throttle(() => {
         controlChange(controlTarget.current, socket.current, render, room.current);
-      }, 200)
+      }, 1000 / 60)
     );
 
     //clean up
