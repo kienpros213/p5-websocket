@@ -1,4 +1,5 @@
 import { Box, Icon } from '@chakra-ui/react';
+import PropTypes from 'prop-types'; // ES6
 
 function OnlineBox(props) {
   return (
@@ -18,5 +19,7 @@ function OnlineBox(props) {
     </Box>
   );
 }
+
+OnlineBox.propTypes = { online: PropTypes.any };
 
 export default OnlineBox;

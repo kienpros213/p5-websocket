@@ -14,6 +14,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 import OnlineBox from './OnlineBox';
+import PropTypes from 'prop-types'; // ES6
 
 function RoomPanel(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -81,5 +82,7 @@ function RoomPanel(props) {
     </>
   );
 }
+
+RoomPanel.propTypes = { online: PropTypes.any, socket: PropTypes.any, room: PropTypes.any, setRoom: PropTypes.any };
 
 export default RoomPanel;

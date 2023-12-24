@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react';
 import RoomPanel from './components/RoomPanel';
@@ -16,7 +16,7 @@ const App = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const initSocket = io('ws://localhost:3000');
+      const initSocket = io('ws://localhost:3000/');
       setSocket(initSocket);
       //on socket connect
       initSocket.on('connect', () => {

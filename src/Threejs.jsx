@@ -20,10 +20,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX, faY, faZ } from '@fortawesome/free-solid-svg-icons';
 import { fitToRect } from './threeUtils/fitToRect';
 import { useEffect, useRef, useState } from 'react';
-import { handleMouseUp, handleKeyUp, handleKeyDown, handlePenDraw } from './threeUtils/eventControls';
+import {
+  handleMouseUp,
+  handleKeyUp,
+  handleKeyDown,
+  handlePenDraw,
+  handleDrag,
+  handleDrop,
+  controlChange
+} from './threeUtils/eventControls';
 import { shapeRotation } from './threeUtils/shapeRotation';
 import { useCameraPlane } from './threeUtils/useCameraPlane';
 import { restoreFunction } from './threeUtils/restoreFunction';
+import PropTypes from 'prop-types'; // ES6
+import { loadModel } from './utils/loadModel';
 
 CameraControls.install({ THREE: THREE });
 
@@ -41,6 +51,7 @@ const Threejs = (props) => {
   let excludeObjects = useRef([]);
   let recievedPoints = useRef([]);
   let camera = useRef();
+  let controlTarget = useRef();
   const { xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane } = useCameraPlane();
   let isDraw = false;
   let points = [];
@@ -56,6 +67,7 @@ const Threejs = (props) => {
 
     camera.current.position.z = 8;
     camera.current.position.y = 8;
+    //renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       logarithmicDepthBuffer: true
@@ -67,10 +79,11 @@ const Threejs = (props) => {
     const gridHelper = new THREE.GridHelper(size, divisions);
 
     //light
-    const light = createLight(0xffffff, 10);
+    const light = createLight(0xffffff, 1);
 
-    //mesh
-    const shape = createPlane(5, 5, '#34aeeb');
+    //init plane mesh
+    const shape = createPlane(5, 5, '#000000');
+    controlTarget.current = shape;
     shape.name = 'plane';
 
     //transform control
@@ -105,17 +118,32 @@ const Threejs = (props) => {
       );
 
       props.socket.on('serverStopFreeDraw', (payload) => {
-        console.log(recievedPoints.current);
-        console.log('stop');
         const existObject = recievedPoints.current.find((obj) => obj.id === payload);
         existObject.data = [];
       });
 
       props.socket.on('roomJoined', (payload) => {
+        console.log(payload);
         const drawData = payload.drawState;
         restoreFunction(scene.current, drawData);
       });
+
+      props.socket.on('serverLoadModel', (payload) => {
+        loadModel(payload, scene.current);
+      });
+
+      props.socket.on('serverTransfrom', (payload) => {
+        console.log(payload);
+        const currentShape = scene.current.getObjectByName(payload.name);
+        const { xP, yP, zP } = payload.position;
+        const { xR, yR, zR } = payload.rotation;
+        const { xS, yS, zS } = payload.scale;
+        currentShape.position.set(xP, yP, zP);
+        currentShape.rotation.set(xR, yR, zR);
+        currentShape.scale.set(xS, yS, zS);
+      });
     }
+
     function animate() {
       const delta = clock.getDelta();
       cameraControls.current.update(delta);
@@ -124,8 +152,13 @@ const Threejs = (props) => {
     }
 
     animate();
-
-    control.current.addEventListener('change', render);
+    //control event listener
+    control.current.addEventListener(
+      'change',
+      _.throttle(() => {
+        controlChange(controlTarget.current, socket.current, render, room.current);
+      }, 1000 / 60)
+    );
 
     //clean up
     return () => {
@@ -134,32 +167,16 @@ const Threejs = (props) => {
         props.socket.off('roomJoined');
         props.socket.off('serverFreeDraw');
         props.socket.off('serverStopFreeDraw');
+        props.socket.off('serverLoadModel');
       }
       renderer.dispose();
       document.body.removeChild(renderer.domElement);
+      control.current.removeEventListener('change', controlChange);
       control.current.dispose();
-      control.current.removeEventListener('change', render);
     };
   }, [props.socket, props.room]);
 
   useEffect(() => {
-    //mouse move
-    window.addEventListener(
-      'mousemove',
-      _.throttle((e) => {
-        onPointerMove(
-          e,
-          camera.current,
-          scene.current,
-          excludeObjects.current,
-          isDraw,
-          points,
-          socket.current,
-          lineMesh.current,
-          room.current
-        );
-      }, 1000 / 120)
-    );
     //key down
     window.addEventListener('keydown', (e) => {
       const result = handleKeyDown(
@@ -186,7 +203,6 @@ const Threejs = (props) => {
       points = result.points;
       lineMesh.current = result.lineMesh;
       penTool = result.penTool;
-      // console.log(result.penTool);
     });
     //key up
     window.addEventListener('keyup', (e) => {
@@ -194,27 +210,75 @@ const Threejs = (props) => {
     });
     //mouse down
     window.addEventListener('mousedown', (e) => {
-      handlePenDraw(e, camera.current, scene.current, excludeObjects.current, penTool, socket.current, room.current);
+      const newControlTarget = handlePenDraw(
+        e,
+        camera.current,
+        scene.current,
+        excludeObjects.current,
+        penTool,
+        socket.current,
+        room.current,
+        control.current,
+        controlTarget.current
+      );
+
+      controlTarget.current = newControlTarget;
     });
     //mouse up
     window.addEventListener('mouseup', () => {
       handleMouseUp(
-        scene.current,
-        shapeName.current,
         xPlane.current,
         yPlane.current,
         zPlane.current,
         reverseXPlane.current,
         reverseYPlane.current,
-        reverseZPlane.current
+        reverseZPlane.current,
+        controlTarget.current,
+        socket.current,
+        room.current
       );
     });
-
+    //mouse move
+    window.addEventListener(
+      'mousemove',
+      _.throttle((e) => {
+        onPointerMove(
+          e,
+          camera.current,
+          scene.current,
+          excludeObjects.current,
+          isDraw,
+          points,
+          socket.current,
+          lineMesh.current,
+          room.current
+        );
+      }, 1000 / 120)
+    );
+    //drag
+    window.addEventListener(
+      'dragover',
+      (e) => {
+        handleDrag(e);
+      },
+      false
+    );
+    //drop
+    window.addEventListener(
+      'drop',
+      (e) => {
+        handleDrop(e, scene.current, socket.current, room.current);
+      },
+      false
+    );
+    //clean up
     return () => {
-      window.removeEventListener('mousedown', handlePenDraw);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousedown', handlePenDraw);
+      window.removeEventListener('dragover', handleDrag);
+      window.removeEventListener('drop', handleDrop);
     };
   }, []);
 
@@ -226,25 +290,25 @@ const Threejs = (props) => {
           <HStack p="10px">
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'all', shapeName.current);
+                shapeRotation(rotation, scene.current, 'all', controlTarget.current);
               }}
               icon={<ArrowCounterclockwise />}
             ></IconButton>
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'x', shapeName.current);
+                shapeRotation(rotation, scene.current, 'x', controlTarget.current);
               }}
               icon={<FontAwesomeIcon icon={faX} />}
             ></IconButton>
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'y', shapeName.current);
+                shapeRotation(rotation, scene.current, 'y', controlTarget.current);
               }}
               icon={<FontAwesomeIcon icon={faY} />}
             ></IconButton>
             <IconButton
               onClick={() => {
-                shapeRotation(rotation, scene.current, 'z', shapeName.current);
+                shapeRotation(rotation, scene.current, 'z', controlTarget.current);
               }}
               icon={<FontAwesomeIcon icon={faZ} />}
             ></IconButton>
@@ -252,7 +316,6 @@ const Threejs = (props) => {
               value={rotation}
               onChange={(e) => {
                 setRotation(e.target.value);
-                console.log(shapeName.current);
               }}
               textAlign="center"
               backgroundColor="white"
@@ -338,5 +401,7 @@ const Threejs = (props) => {
     </>
   );
 };
+
+Threejs.propTypes = { socket: PropTypes.any, room: PropTypes.any };
 
 export default Threejs;

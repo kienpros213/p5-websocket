@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { emailValidate } from '../utils/emailValidation';
 import { passwordValidate } from '../utils/passwordValidation';
 import { toast } from 'react-toastify';
+import PropTypes from 'prop-types'; // ES6
 
 function Login(props) {
   const [emailIsValid, setEmailIsValid] = useState('');
@@ -155,9 +156,9 @@ function Login(props) {
             {isOpen ? 'Register' : 'Login'}
           </Button>
           <Text color="#A5D7E8">
-            Don't have an account ?
+            Don&apos;t have an account ?
             <Link onClick={onToggle} color="teal.500" href="#">
-              don't have an account
+              don&apos;t have an account
             </Link>
           </Text>
         </HStack>
@@ -166,5 +167,7 @@ function Login(props) {
     </Box>
   );
 }
+
+Login.propTypes = { username: PropTypes.any, setIsLoggedIn: PropTypes.any, setUsername: PropTypes.any };
 
 export default Login;

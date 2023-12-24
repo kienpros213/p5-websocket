@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Canvas from './components/Canvas';
 import { io } from 'socket.io-client';
 import { Box, HStack } from '@chakra-ui/react';

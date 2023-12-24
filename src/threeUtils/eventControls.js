@@ -1,24 +1,47 @@
 import { fitToRect } from './fitToRect';
 import * as THREE from 'three';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-import _ from 'lodash';
 import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
+import { loadFiles } from './loadFiles';
 
 let reverseState = false;
+let changeControl = true;
 let lineArray = [];
 
-const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room) => {
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  let drawPos = new THREE.Vector3();
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let drawPos = new THREE.Vector3();
+let controlTarget;
 
+//mosue down
+const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room, control) => {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(scene.children.filter((obj) => !excludeObjects.includes(obj)));
 
-  if (intersects.length > 0 && penTool && lineArray.length <= 2) {
+  if (intersects.length > 0) {
+    const newObj = intersects[0].object;
+    console.log(newObj);
+    if (
+      (changeControl && newObj.name === 'plane') ||
+      newObj.name === 'box' ||
+      newObj.name === 'cone' ||
+      newObj.name === 'sphere'
+    ) {
+      control.attach(newObj);
+      controlTarget = newObj;
+    }
+    newObj.traverseAncestors((obj) => {
+      if (obj.isGroup) {
+        control.attach(obj);
+        controlTarget = obj;
+      }
+    });
+  }
+
+  if (penTool && lineArray.length <= 2) {
     drawPos = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
     lineArray.push(drawPos);
     if (lineArray.length === 2) {
@@ -38,23 +61,44 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
       }
 
       lineArray = [];
-      console.log('clear', lineArray);
       lineArray.push(drawPos);
     }
   }
+  if (controlTarget) {
+    return controlTarget;
+  }
 };
 
-const handleMouseUp = (scene, shapeName, xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane) => {
-  const currentShape = scene.getObjectByName(shapeName);
-  const { x, y, z } = currentShape.position;
-  xPlane.position.set(x + 6, y, z);
-  yPlane.position.set(x, y + 6, z);
-  zPlane.position.set(x, y, z + 6);
-  reverseXPlane.position.set(x + -6, y, z);
-  reverseYPlane.position.set(x, y + -6, z);
-  reverseZPlane.position.set(x, y, z + -6);
+//mouse up
+const handleMouseUp = (
+  xPlane,
+  yPlane,
+  zPlane,
+  reverseXPlane,
+  reverseYPlane,
+  reverseZPlane,
+  controlTarget,
+  socket,
+  room
+) => {
+  if (controlTarget && socket && controlTarget.isGroup) {
+    const name = controlTarget.name;
+    const position = { xP: controlTarget.position.x, yP: controlTarget.position.y, zP: controlTarget.position.z };
+    const rotation = { xR: controlTarget.rotation.x, yR: controlTarget.rotation.y, zR: controlTarget.rotation.z };
+    const scale = { xS: controlTarget.scale.x, yS: controlTarget.scale.y, zS: controlTarget.scale.z };
+    //set camera plane new position
+    xPlane.position.set(position.xP + 6, position.yP, position.zP);
+    yPlane.position.set(position.xP, position.yP + 6, position.zP);
+    zPlane.position.set(position.xP, position.yP, position.zP + 6);
+    reverseXPlane.position.set(position.xP + -6, position.yP, position.zP);
+    reverseYPlane.position.set(position.xP, position.yP + -6, position.zP);
+    reverseZPlane.position.set(position.xP, position.yP, position.zP + -6);
+
+    socket.emit('endTransform', { name: name, room: room, position: position, rotation: rotation, scale: scale });
+  }
 };
 
+//key down
 const handleKeyDown = (
   event,
   control,
@@ -84,7 +128,6 @@ const handleKeyDown = (
   lineMaterial.polygonOffset = true;
   lineMaterial.polygonOffsetUnit = 1;
   lineMaterial.polygonOffsetFactor = 1;
-  lineMaterial.blending = THREE.NormalBlending;
   switch (event.keyCode) {
     case 87: // W
       control.setMode('translate');
@@ -96,24 +139,21 @@ const handleKeyDown = (
       control.setMode('scale');
       break;
     case 88: //X
-      console.log('x');
       if (reverseState) {
         fitToRect(xPlane, cameraControls);
-        break;
       }
       if (!reverseState) {
         fitToRect(reverseXPlane, cameraControls);
-        break;
       }
+      break;
     case 67: //C
       if (reverseState) {
         fitToRect(yPlane, cameraControls);
-        break;
       }
       if (!reverseState) {
         fitToRect(reverseYPlane, cameraControls);
-        break;
       }
+      break;
     case 90: //Z
       if (reverseState) {
         fitToRect(zPlane, cameraControls);
@@ -130,7 +170,8 @@ const handleKeyDown = (
     case 16: //Shift
       reverseState = true;
       break;
-    case 13: //Enter
+    case 13: {
+      //Enter
       isDraw = !isDraw;
       const initLineMesh = new THREE.Mesh(lineGeometry, lineMaterial);
       initLineMesh.renderOrder = 1;
@@ -148,8 +189,11 @@ const handleKeyDown = (
         }
       }
       break;
+    }
+
     case 17: //Cltr
       penTool = !penTool;
+      changeControl = !changeControl;
       lineArray = [];
       if (penTool) {
         control.detach(currentShape);
@@ -166,6 +210,7 @@ const handleKeyDown = (
   return { isDraw, points, lineMesh, penTool };
 };
 
+//key up
 const handleKeyUp = (event, cameraControls, CameraControls) => {
   switch (event.keyCode) {
     case 18: //Alt
@@ -177,4 +222,27 @@ const handleKeyUp = (event, cameraControls, CameraControls) => {
   }
 };
 
-export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw };
+//drag
+const handleDrag = (event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+};
+
+//drop
+const handleDrop = (event, scene, socket, room) => {
+  event.preventDefault();
+  loadFiles(event.dataTransfer.files, scene, socket, room);
+};
+
+//control
+const controlChange = (controlTarget, socket, render, room) => {
+  if (controlTarget && socket) {
+    const name = controlTarget.name;
+    const position = { xP: controlTarget.position.x, yP: controlTarget.position.y, zP: controlTarget.position.z };
+    const rotation = { xR: controlTarget.rotation.x, yR: controlTarget.rotation.y, zR: controlTarget.rotation.z };
+    const scale = { xS: controlTarget.scale.x, yS: controlTarget.scale.y, zS: controlTarget.scale.z };
+    socket.emit('transform', { room: room, name: name, position: position, rotation: rotation, scale: scale });
+  }
+};
+
+export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw, handleDrag, handleDrop, controlChange };

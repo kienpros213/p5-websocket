@@ -4,7 +4,7 @@ export function changeShape(targetShape, shapeName, scene, control) {
   let existingShape;
   let currentShape;
   switch (targetShape) {
-    case 'box':
+    case 'box': {
       currentShape = scene.getObjectByName(shapeName);
       existingShape = scene.getObjectByName('box');
       shapeName = 'box';
@@ -20,8 +20,9 @@ export function changeShape(targetShape, shapeName, scene, control) {
       scene.add(newBox);
       control.attach(newBox);
       break;
+    }
 
-    case 'plane':
+    case 'plane': {
       currentShape = scene.getObjectByName(shapeName);
       existingShape = scene.getObjectByName('plane');
       shapeName = 'plane';
@@ -38,8 +39,9 @@ export function changeShape(targetShape, shapeName, scene, control) {
       scene.add(newPlane);
       control.attach(newPlane);
       break;
+    }
 
-    case 'sphere':
+    case 'sphere': {
       currentShape = scene.getObjectByName(shapeName);
       existingShape = scene.getObjectByName('sphere');
       shapeName = 'sphere';
@@ -56,8 +58,9 @@ export function changeShape(targetShape, shapeName, scene, control) {
       scene.add(newSphere);
       control.attach(newSphere);
       break;
+    }
 
-    case 'cone':
+    case 'cone': {
       currentShape = scene.getObjectByName(shapeName);
       existingShape = scene.getObjectByName('cone');
       shapeName = 'cone';
@@ -74,7 +77,7 @@ export function changeShape(targetShape, shapeName, scene, control) {
       scene.add(newCone);
       control.attach(newCone);
       break;
-
+    }
     default:
       console.log('Unsupported shape:', targetShape);
   }
