@@ -133,6 +133,7 @@ const Threejs = (props) => {
       });
 
       props.socket.on('serverTransfrom', (payload) => {
+        console.log(payload);
         const currentShape = scene.current.getObjectByName(payload.name);
         const { xP, yP, zP } = payload.position;
         const { xR, yR, zR } = payload.rotation;
@@ -232,7 +233,9 @@ const Threejs = (props) => {
         reverseXPlane.current,
         reverseYPlane.current,
         reverseZPlane.current,
-        controlTarget.current
+        controlTarget.current,
+        socket.current,
+        room.current
       );
     });
     //mouse move

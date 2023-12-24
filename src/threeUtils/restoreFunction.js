@@ -22,6 +22,7 @@ export function restoreFunction(scene, drawData) {
   }
 
   if (modelIndex) {
+    console.log(modelIndex);
     for (let i = 0; i < modelIndex; i++) {
       concatenateArrayBuffers(drawData.model[i], scene);
     }
@@ -58,7 +59,15 @@ function penDrawFunction(scene, recievedPoints) {
   geometry.setPositions(recievedPoints.flat(2));
 }
 
-function concatenateArrayBuffers(arrayBuffers, scene) {
+function concatenateArrayBuffers(model, scene) {
+  const arrayBuffers = model.data;
+  const modelName = model.name;
+  const position = model.position;
+  const rotation = model.rotation;
+  const scale = model.scale;
+
+  console.log(position, rotation, scale);
+
   let totalLength = arrayBuffers.reduce((acc, buffer) => acc + buffer.byteLength, 0);
 
   let resultBuffer = new ArrayBuffer(totalLength);
@@ -79,15 +88,10 @@ function concatenateArrayBuffers(arrayBuffers, scene) {
   loader.setDRACOLoader(draco);
   loader.parse(resultBuffer, '', function (result) {
     var model = result.scene;
-    model.name = 'random';
-    const box3 = new THREE.Box3();
-    const size = new THREE.Vector3();
-
-    box3.setFromObject(model);
-    box3.getSize(size);
-    1;
-    const min = Math.min(size.x, size.y, size.z);
-    model.scale.setScalar(1 / min);
+    model.name = modelName;
+    model.position.set(position[0], position[1], position[2]);
+    model.rotation.set(rotation[0], rotation[1], rotation[2]);
+    model.scale.set(scale[0], scale[1], scale[2]);
 
     scene.add(result.scene);
   });

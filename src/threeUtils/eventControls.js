@@ -13,6 +13,7 @@ const pointer = new THREE.Vector2();
 let drawPos = new THREE.Vector3();
 let controlTarget;
 
+//mosue down
 const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, room, control) => {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -22,6 +23,7 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
 
   if (intersects.length > 0) {
     const newObj = intersects[0].object;
+    console.log(newObj);
     if (
       (changeControl && newObj.name === 'plane') ||
       newObj.name === 'box' ||
@@ -67,18 +69,36 @@ const handlePenDraw = (event, camera, scene, excludeObjects, penTool, socket, ro
   }
 };
 
-const handleMouseUp = (xPlane, yPlane, zPlane, reverseXPlane, reverseYPlane, reverseZPlane, controlTarget) => {
-  if (controlTarget) {
-    const { x, y, z } = controlTarget.position;
-    xPlane.position.set(x + 6, y, z);
-    yPlane.position.set(x, y + 6, z);
-    zPlane.position.set(x, y, z + 6);
-    reverseXPlane.position.set(x + -6, y, z);
-    reverseYPlane.position.set(x, y + -6, z);
-    reverseZPlane.position.set(x, y, z + -6);
+//mouse up
+const handleMouseUp = (
+  xPlane,
+  yPlane,
+  zPlane,
+  reverseXPlane,
+  reverseYPlane,
+  reverseZPlane,
+  controlTarget,
+  socket,
+  room
+) => {
+  if (controlTarget && socket && controlTarget.isGroup) {
+    const name = controlTarget.name;
+    const position = { xP: controlTarget.position.x, yP: controlTarget.position.y, zP: controlTarget.position.z };
+    const rotation = { xR: controlTarget.rotation.x, yR: controlTarget.rotation.y, zR: controlTarget.rotation.z };
+    const scale = { xS: controlTarget.scale.x, yS: controlTarget.scale.y, zS: controlTarget.scale.z };
+    //set camera plane new position
+    xPlane.position.set(position.xP + 6, position.yP, position.zP);
+    yPlane.position.set(position.xP, position.yP + 6, position.zP);
+    zPlane.position.set(position.xP, position.yP, position.zP + 6);
+    reverseXPlane.position.set(position.xP + -6, position.yP, position.zP);
+    reverseYPlane.position.set(position.xP, position.yP + -6, position.zP);
+    reverseZPlane.position.set(position.xP, position.yP, position.zP + -6);
+
+    socket.emit('endTransform', { name: name, room: room, position: position, rotation: rotation, scale: scale });
   }
 };
 
+//key down
 const handleKeyDown = (
   event,
   control,
@@ -190,6 +210,7 @@ const handleKeyDown = (
   return { isDraw, points, lineMesh, penTool };
 };
 
+//key up
 const handleKeyUp = (event, cameraControls, CameraControls) => {
   switch (event.keyCode) {
     case 18: //Alt
@@ -201,16 +222,19 @@ const handleKeyUp = (event, cameraControls, CameraControls) => {
   }
 };
 
+//drag
 const handleDrag = (event) => {
   event.preventDefault();
   event.dataTransfer.dropEffect = 'copy';
 };
 
+//drop
 const handleDrop = (event, scene, socket, room) => {
   event.preventDefault();
   loadFiles(event.dataTransfer.files, scene, socket, room);
 };
 
+//control
 const controlChange = (controlTarget, socket, render, room) => {
   if (controlTarget && socket) {
     const name = controlTarget.name;
@@ -219,7 +243,6 @@ const controlChange = (controlTarget, socket, render, room) => {
     const scale = { xS: controlTarget.scale.x, yS: controlTarget.scale.y, zS: controlTarget.scale.z };
     socket.emit('transform', { room: room, name: name, position: position, rotation: rotation, scale: scale });
   }
-  render();
 };
 
 export { handleMouseUp, handleKeyDown, handleKeyUp, handlePenDraw, handleDrag, handleDrop, controlChange };
